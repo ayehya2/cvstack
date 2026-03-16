@@ -141,10 +141,10 @@ export function BasicsForm() {
                                 </div>
                                 <button
                                     onClick={() => removeWebsite(index)}
-                                    className="btn-remove w-8 h-[32px] sm:h-[34px] flex-shrink-0 flex items-center justify-center"
-                                    title="Remove"
+                                    className="btn-remove px-3 py-1.5 flex items-center gap-1.5"
                                 >
-                                    <Trash2 size={13} strokeWidth={2.5} />
+                                    <Trash2 size={12} strokeWidth={3} />
+                                    Remove
                                 </button>
                             </div>
                         ))}

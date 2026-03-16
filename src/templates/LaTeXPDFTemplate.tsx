@@ -17,7 +17,8 @@ import {
     getPDFDateSeparator,
     getPDFBodyTextWeight,
     getPDFParagraphSpacing,
-    getPDFSectionTitleSpacing
+    getPDFSectionTitleSpacing,
+    renderSkillItems
 } from '../lib/pdfFormatting';
 import { parseBoldTextPDF } from '../lib/parseBoldText';
 import { renderEducationSubsections } from '../lib/educationSubsections';
@@ -226,7 +227,7 @@ export function LaTeXPDFTemplate({ data, documentTitle }: LaTeXPDFTemplateProps)
                                     <View key={idx} style={styles.skillCategory}>
                                         <Text>
                                             <Text style={{ fontWeight: 'bold' }}>{skillGroup.category}: </Text>
-                                            <Text style={{ color: '#333333' }}>{skillGroup.items.join(getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                            <Text style={{ color: '#333333' }}>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
                                         </Text>
                                     </View>
                                 ))}

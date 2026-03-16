@@ -476,6 +476,31 @@ input::placeholder {
   transform: translateY(-1px);
 }
 
+/* Small icon-only trash button */
+.btn-icon-remove {
+  color: #94a3b8 !important; /* slate-400 */
+  transition: all 0.2s ease;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon-remove:hover {
+  color: #ef4444 !important; /* red-500 */
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  transform: scale(1.1);
+}
+
+.dark .btn-icon-remove {
+  color: #64748b !important; /* slate-500 */
+}
+
+.dark .btn-icon-remove:hover {
+  color: #f87171 !important; /* red-400 */
+  background-color: rgba(248, 113, 113, 0.1) !important;
+}
+
 /* Standardized Form Input */
 .form-input {
   width: 100%;
@@ -494,6 +519,18 @@ input::placeholder {
 .form-input:focus {
   border-color: #64748b; /* slate-500 */
   box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.2);
+  background-color: #ffffff;
+}
+
+.dark .form-input {
+  background-color: #0f172a; /* slate-900 */
+  border-color: #334155; /* slate-700 */
+  color: #f1f5f9; /* slate-100 */
+}
+
+.dark .form-input:focus {
+  border-color: #94a3b8; /* slate-400 */
+  background-color: #020617; /* slate-950 */
 }
 
 .form-input::placeholder {

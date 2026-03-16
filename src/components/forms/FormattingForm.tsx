@@ -193,7 +193,7 @@ export function FormattingForm({
                                     type="checkbox"
                                     checked={!!formatting?.sectionTitleUnderline}
                                     onChange={(e) => updateFormatting({ sectionTitleUnderline: e.target.checked })}
-                                    className="w-4 h-4 border-slate-300 text-slate-700 focus:ring-slate-500 dark:bg-slate-950 dark:border-slate-600 rounded-none"
+                                    className="w-4 h-4 border-slate-300 text-blue-600 focus:ring-blue-500 dark:bg-slate-950 dark:border-slate-600 rounded-none"
                                 />
                                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Underline Titles</span>
                             </label>
@@ -436,7 +436,7 @@ export function FormattingForm({
                                     type="checkbox"
                                     checked={!!formatting?.showIcons}
                                     onChange={(e) => updateFormatting({ showIcons: e.target.checked })}
-                                    className="w-4 h-4 border-slate-300 text-slate-700 focus:ring-slate-500 dark:bg-slate-950 dark:border-slate-600"
+                                    className="w-4 h-4 border-slate-300 text-blue-600 focus:ring-blue-500 dark:bg-slate-950 dark:border-slate-600"
                                 />
                                 <span className="text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Contact Icons</span>
                             </label>
@@ -671,7 +671,7 @@ export function FormattingForm({
                                     type="checkbox"
                                     checked={!!formatting?.showLocation}
                                     onChange={(e) => updateFormatting({ showLocation: e.target.checked })}
-                                    className="w-4 h-4 border-slate-300 text-slate-700 focus:ring-slate-500 dark:bg-slate-950 dark:border-slate-600"
+                                    className="w-4 h-4 border-slate-300 text-blue-600 focus:ring-blue-500 dark:bg-slate-950 dark:border-slate-600"
                                 />
                                 <span className="text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Location</span>
                             </label>
@@ -680,7 +680,7 @@ export function FormattingForm({
                                     type="checkbox"
                                     checked={!!formatting?.showGPA}
                                     onChange={(e) => updateFormatting({ showGPA: e.target.checked })}
-                                    className="w-4 h-4 border-slate-300 text-slate-700 focus:ring-slate-500 dark:bg-slate-950 dark:border-slate-600"
+                                    className="w-4 h-4 border-slate-300 text-blue-600 focus:ring-blue-500 dark:bg-slate-950 dark:border-slate-600"
                                 />
                                 <span className="text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">GPA</span>
                             </label>
@@ -689,7 +689,7 @@ export function FormattingForm({
                                     type="checkbox"
                                     checked={!!formatting?.showEducationDescription}
                                     onChange={(e) => updateFormatting({ showEducationDescription: e.target.checked })}
-                                    className="w-4 h-4 border-slate-300 text-slate-700 focus:ring-slate-500 dark:bg-slate-950 dark:border-slate-600"
+                                    className="w-4 h-4 border-slate-300 text-blue-600 focus:ring-blue-500 dark:bg-slate-950 dark:border-slate-600"
                                 />
                                 <span className="text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Edu Desc.</span>
                             </label>
@@ -698,7 +698,7 @@ export function FormattingForm({
                                     type="checkbox"
                                     checked={!!formatting?.showProjectKeywords}
                                     onChange={(e) => updateFormatting({ showProjectKeywords: e.target.checked })}
-                                    className="w-4 h-4 border-slate-300 text-slate-700 focus:ring-slate-500 dark:bg-slate-950 dark:border-slate-600"
+                                    className="w-4 h-4 border-slate-300 text-blue-600 focus:ring-blue-500 dark:bg-slate-950 dark:border-slate-600"
                                 />
                                 <span className="text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Proj Tags</span>
                             </label>
@@ -707,7 +707,7 @@ export function FormattingForm({
                                     type="checkbox"
                                     checked={!!formatting?.showAwardsSummaries}
                                     onChange={(e) => updateFormatting({ showAwardsSummaries: e.target.checked })}
-                                    className="w-4 h-4 border-slate-300 text-slate-700 focus:ring-slate-500 dark:bg-slate-950 dark:border-slate-600"
+                                    className="w-4 h-4 border-slate-300 text-blue-600 focus:ring-blue-500 dark:bg-slate-950 dark:border-slate-600"
                                 />
                                 <span className="text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Award Desc.</span>
                             </label>

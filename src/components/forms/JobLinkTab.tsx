@@ -74,7 +74,7 @@ export const JobLinkTab: React.FC<JobLinkTabProps> = ({
                             onChange={(e) => setJobContext({ applyToBoth: e.target.checked })}
                             className="sr-only"
                         />
-                        <div className={`w-10 h-5 rounded-full transition-all duration-300 ${applyToBoth ? 'btn-add' : 'bg-slate-300 dark:bg-slate-700'}`}>
+                        <div className={`w-10 h-5 rounded-full transition-all duration-300 ${applyToBoth ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-700'}`}>
                             <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-300 ${applyToBoth ? 'translate-x-5' : 'translate-x-0'}`} />
                         </div>
                     </div>

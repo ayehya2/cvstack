@@ -305,9 +305,11 @@ export function MinimalPDFTemplate({ data, documentTitle }: MinimalPDFTemplatePr
                             <View key="skills" style={styles.section}>
                                 <Text style={styles.sectionHeader}>Skills</Text>
                                 {skills.filter(s => s.category?.trim() || s.items.some(i => i.trim())).map((skillGroup, idx) => (
-                                    <View key={idx} style={styles.skillRow}>
-                                        <Text style={styles.skillCategory}>{skillGroup.category}: </Text>
-                                        <Text style={styles.skillItems}>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                    <View key={idx} style={{ marginBottom: 4 }}>
+                                        <Text style={{ fontSize: styles.skillRow.fontSize }}>
+                                            <Text style={styles.skillCategory}>{skillGroup.category}: </Text>
+                                            <Text style={styles.skillItems}>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                        </Text>
                                     </View>
                                 ))}
                             </View>

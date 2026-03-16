@@ -19,7 +19,8 @@ import {
     getPDFBodyTextWeight,
     getPDFParagraphSpacing,
     getPDFSectionTitleSpacing,
-    getPDFSectionBorderStyle
+    getPDFSectionBorderStyle,
+    renderSkillItems
 } from '../lib/pdfFormatting';
 import { parseBoldTextPDF } from '../lib/parseBoldText';
 import { renderEducationSubsections } from '../lib/educationSubsections';
@@ -231,7 +232,7 @@ export function ClassicPDFTemplate({ data, documentTitle }: ClassicPDFTemplatePr
                                     <View key={idx} style={styles.skillCategory}>
                                         <Text>
                                             <Text style={styles.skillCategoryName}>{skillGroup.category}: </Text>
-                                            <Text>{skillGroup.items.filter(i => i.trim()).join(getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                            <Text>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
                                         </Text>
                                     </View>
                                 ))}

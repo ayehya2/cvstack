@@ -4,8 +4,8 @@ import React from 'react';
 import { Text } from '@react-pdf/renderer';
 
 /**
- * Convert simple HTML (strong, em, u) into React-PDF <Text> elements.
- * Supports: <strong>, <b>, <em>, <i>, <u>
+ * Convert simple HTML (strong, em, u, s) into React-PDF <Text> elements.
+ * Supports NESTED tags: <strong><em><u>text</u></em></strong>
  * Used for rendering skill items and other HTML-containing fields in PDFs.
  */
 export function renderHtmlText(html: string, baseStyle?: React.CSSProperties): React.ReactNode {
@@ -23,50 +23,71 @@ export function renderHtmlText(html: string, baseStyle?: React.CSSProperties): R
         return cleaned;
     }
 
-    const segments: React.ReactNode[] = [];
-    let key = 0;
+    // Recursive parser
+    let keyCounter = 0;
 
-    const tagRegex = /<(strong|b|em|i|u)>(.*?)<\/\1>/gi;
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
+    function parseHtml(input: string, inheritedStyle: Record<string, unknown>): React.ReactNode[] {
+        const segments: React.ReactNode[] = [];
+        // Match outermost tags greedily by finding matching open/close pairs
+        const tagRegex = /<(strong|b|em|i|u|s)>([\s\S]*?)<\/\1>/gi;
+        let lastIndex = 0;
+        let match: RegExpExecArray | null;
 
-    tagRegex.lastIndex = 0;
+        tagRegex.lastIndex = 0;
 
-    while ((match = tagRegex.exec(cleaned)) !== null) {
-        // Add text before this tag
-        if (match.index > lastIndex) {
-            segments.push(cleaned.substring(lastIndex, match.index));
+        while ((match = tagRegex.exec(input)) !== null) {
+            // Add text before this tag
+            if (match.index > lastIndex) {
+                const before = input.substring(lastIndex, match.index);
+                if (before) segments.push(before);
+            }
+
+            const tag = match[1].toLowerCase();
+            const content = match[2];
+            const style: Record<string, unknown> = { ...inheritedStyle };
+
+            if (tag === 'strong' || tag === 'b') {
+                style.fontWeight = 700;
+            } else if (tag === 'em' || tag === 'i') {
+                style.fontStyle = 'italic';
+            } else if (tag === 'u') {
+                style.textDecoration = 'underline';
+            } else if (tag === 's') {
+                style.textDecoration = 'line-through';
+            }
+
+            // Recursively parse inner content for nested tags
+            if (content.includes('<')) {
+                const children = parseHtml(content, style);
+                segments.push(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    React.createElement(Text, { key: keyCounter++, style } as any, ...children)
+                );
+            } else {
+                segments.push(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    React.createElement(Text, { key: keyCounter++, style } as any, content)
+                );
+            }
+
+            lastIndex = match.index + match[0].length;
         }
 
-        const tag = match[1].toLowerCase();
-        const content = match[2];
-        const style: Record<string, unknown> = { ...baseStyle };
-
-        if (tag === 'strong' || tag === 'b') {
-            style.fontWeight = 700;
-        } else if (tag === 'em' || tag === 'i') {
-            style.fontStyle = 'italic';
-        } else if (tag === 'u') {
-            style.textDecoration = 'underline';
+        // Add remaining text after last tag
+        if (lastIndex < input.length) {
+            const remaining = input.substring(lastIndex);
+            if (remaining) segments.push(remaining);
         }
 
-        segments.push(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            React.createElement(Text, { key: key++, style } as any, content)
-        );
-
-        lastIndex = match.index + match[0].length;
+        return segments;
     }
 
-    // Add remaining text after last tag
-    if (lastIndex < cleaned.length) {
-        segments.push(cleaned.substring(lastIndex));
-    }
+    const result = parseHtml(cleaned, baseStyle ? { ...baseStyle } : {});
 
-    if (segments.length === 0) return html;
-    if (segments.length === 1 && typeof segments[0] === 'string') return segments[0];
+    if (result.length === 0) return cleaned;
+    if (result.length === 1 && typeof result[0] === 'string') return result[0];
 
-    return segments;
+    return result;
 }
 
 /**

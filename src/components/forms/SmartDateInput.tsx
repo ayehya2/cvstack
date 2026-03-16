@@ -166,7 +166,7 @@ function MonthPicker({ value, onChange, label, className = '', showPresent, show
                             return (
                                 <button key={m} type="button" onClick={() => handleMonthClick(idx)}
                                     className={`py-1.5 text-xs font-semibold transition-all rounded-sm ${
-                                        isSelected ? 'btn-add text-white shadow-sm'
+                                        isSelected ? 'bg-blue-600 text-white shadow-sm'
                                             : isCurrent ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100'
                                                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                                     }`}
@@ -181,7 +181,7 @@ function MonthPicker({ value, onChange, label, className = '', showPresent, show
                             <label className="flex items-center gap-2 cursor-pointer select-none group">
                                 <div className="relative">
                                     <input type="checkbox" checked={isPresent} onChange={handlePresentToggle} className="sr-only" />
-                                    <div className={`w-9 h-5 rounded-full transition-colors ${isPresent ? 'btn-add' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                                    <div className={`w-9 h-5 rounded-full transition-colors ${isPresent ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`} />
                                     <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${isPresent ? 'translate-x-4' : 'translate-x-0'}`} />
                                 </div>
                                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">

@@ -88,10 +88,10 @@ export function SkillsForm() {
                         <div className="space-y-3">
                             {/* Top row: Label + Input + Add Button */}
                             <div className="flex items-center gap-3">
-                                <label className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400 whitespace-nowrap min-w-[60px]">
                                     Skills
                                 </label>
-                                <div className="flex-1 border-2 border-transparent focus-within:border-blue-500/50 transition-colors bg-white dark:bg-slate-950">
+                                <div className="flex-1">
                                     <RichTextEditor
                                         value={newSkillHtml[index] || ''}
                                         onChange={(html) =>
@@ -104,7 +104,7 @@ export function SkillsForm() {
                                 </div>
                                 <button
                                     onClick={() => addSkillItem(index)}
-                                    className="px-6 h-[32px] sm:h-[34px] btn-add flex items-center gap-2 transition-all active:scale-95 shadow-md flex-shrink-0"
+                                    className="px-6 h-[32px] btn-add flex items-center gap-2 transition-all active:scale-95 shadow-sm flex-shrink-0"
                                 >
                                     <Plus size={14} strokeWidth={3} />
                                     ADD
@@ -115,19 +115,22 @@ export function SkillsForm() {
                             {skill.items.length > 0 && (
                                 <div className="flex flex-wrap gap-2 pt-1">
                                     {skill.items.map((item, itemIndex) => (
-                                        <span
+                                        <div
                                             key={itemIndex}
-                                            className="inline-flex items-center gap-2.5 px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-sm"
+                                            className="inline-flex items-center gap-2 px-2.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm group"
                                         >
-                                            <span dangerouslySetInnerHTML={{ __html: item }} className="leading-none mt-0.5" />
+                                            <span
+                                                className="text-[11px] font-bold text-slate-700 dark:text-slate-300 leading-none"
+                                                dangerouslySetInnerHTML={{ __html: item }}
+                                            />
                                             <button
                                                 onClick={() => removeSkillItem(index, itemIndex)}
-                                                className="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-500 transition-colors"
+                                                className="btn-icon-remove"
                                                 title="Remove skill"
                                             >
-                                                <Trash2 size={12} strokeWidth={3} />
+                                                <Trash2 size={11} strokeWidth={3} />
                                             </button>
-                                        </span>
+                                        </div>
                                     ))}
                                 </div>
                             )}
