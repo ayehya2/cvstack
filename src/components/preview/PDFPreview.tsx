@@ -327,7 +327,6 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
     const txt: React.CSSProperties = { color: 'var(--main-text)' };
     const txtM: React.CSSProperties = { color: 'var(--main-text-secondary)' };
     const btn: React.CSSProperties = { backgroundColor: 'var(--input-bg)', color: 'var(--main-text)', borderColor: 'var(--input-border)' };
-    const btnOn: React.CSSProperties = { ...btn, outline: '2px solid var(--accent)', outlineOffset: '-2px' };
 
     const zoomLabel = zoom === 0 ? 'Width' : zoom === -1 ? 'Page' : `${zoom}%`;
 
@@ -379,14 +378,16 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
                     {totalPages > 0 && (
                         <div className="flex items-center gap-0.5 flex-shrink-0">
                             <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage <= 1}
-                                className="p-1 border transition-colors disabled:opacity-30" style={btn} title="Previous Page">
+                                className="p-1 rounded transition-colors disabled:opacity-30 hover:bg-white/5 active:bg-white/10"
+                                style={{ color: 'var(--main-text)' }} title="Previous Page">
                                 <ChevronLeft size={14} />
                             </button>
                             <span className="text-[11px] font-bold px-1 tabular-nums" style={txt} title="Current Page">
                                 {currentPage}/{totalPages}
                             </span>
                             <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPages}
-                                className="p-1 border transition-colors disabled:opacity-30" style={btn} title="Next Page">
+                                className="p-1 rounded transition-colors disabled:opacity-30 hover:bg-white/5 active:bg-white/10"
+                                style={{ color: 'var(--main-text)' }} title="Next Page">
                                 <ChevronRight size={14} />
                             </button>
                         </div>
@@ -395,22 +396,28 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
                     {showResume && showCoverLetter && onDocumentTypeChange && (
                         <>
                             <div className="w-px h-4 mx-2" style={{ backgroundColor: 'var(--card-border)' }} />
-                            <div className="flex items-center rounded-md p-0.5" style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', height: '28px', minWidth: 'unspecified' }}>
+                            <div className="flex items-center gap-4 px-2 h-[28px]">
                                 <button
                                     onClick={() => onDocumentTypeChange('resume')}
-                                    className="flex items-center justify-center text-[10px] uppercase tracking-wider font-bold rounded transition-colors h-full px-2 leading-none w-[70px]"
-                                    style={documentType === 'resume' ? { backgroundColor: '#1e293b', color: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' } : { color: '#94a3b8', backgroundColor: 'transparent' }}
+                                    className={`relative flex items-center justify-center text-[11px] font-bold transition-colors h-full px-1`}
+                                    style={{ color: documentType === 'resume' ? 'var(--main-text)' : 'var(--main-text-secondary)' }}
                                     title="View Resume Preview"
                                 >
                                     Resume
+                                    {documentType === 'resume' && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-t-sm" />
+                                    )}
                                 </button>
                                 <button
                                     onClick={() => onDocumentTypeChange('coverletter')}
-                                    className="flex items-center justify-center text-[9px] uppercase tracking-wider font-bold rounded transition-colors h-full px-1.5 leading-[1.05] w-[70px]"
-                                    style={documentType === 'coverletter' ? { backgroundColor: '#1e293b', color: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' } : { color: '#94a3b8', backgroundColor: 'transparent' }}
+                                    className={`relative flex items-center justify-center text-[11px] font-bold transition-colors h-full px-1`}
+                                    style={{ color: documentType === 'coverletter' ? 'var(--main-text)' : 'var(--main-text-secondary)' }}
                                     title="View Cover Letter Preview"
                                 >
-                                    <span className="text-center">Cover<br />Letter</span>
+                                    Cover letter
+                                    {documentType === 'coverletter' && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-t-sm" />
+                                    )}
                                 </button>
                             </div>
                         </>
@@ -419,22 +426,26 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
 
                 {/* Center: zoom + fit */}
                 <div className="flex items-center gap-1 flex-shrink-0 justify-center">
-                    <button onClick={handleZoomOut} className="p-2 sm:p-1.5 border transition-colors" style={btn} title="Zoom Out">
+                    <button onClick={handleZoomOut} className="p-2 sm:p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
+                        style={{ color: 'var(--main-text)' }} title="Zoom Out">
                         <ZoomOut size={16} />
                     </button>
                     <span className="text-[11px] font-bold min-w-[44px] text-center select-none tabular-nums" style={txt}>
                         {zoomLabel}
                     </span>
-                    <button onClick={handleZoomIn} className="p-2 sm:p-1.5 border transition-colors" style={btn} title="Zoom In">
+                    <button onClick={handleZoomIn} className="p-2 sm:p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
+                        style={{ color: 'var(--main-text)' }} title="Zoom In">
                         <ZoomIn size={16} />
                     </button>
-                    <button onClick={handleFitToggle} className="p-2 sm:p-1.5 border transition-colors"
-                        style={(zoom === 0 || zoom === -1) ? btnOn : btn}
+                    <button onClick={handleFitToggle} className="p-2 sm:p-1.5 transition-colors text-white/80 hover:text-white rounded hover:bg-white/5 active:bg-white/10"
+                        style={(zoom === 0 || zoom === -1) ? { backgroundColor: 'transparent' } : undefined}
                         title={zoom === 0 ? "Switch to Fit Page" : "Switch to Fit Width"}>
                         {zoom === 0 ? (
-                            <MoveHorizontal size={16} />
+                            <MoveHorizontal size={16} className="text-blue-400" />
+                        ) : zoom === -1 ? (
+                            <Maximize size={16} className="text-green-500" />
                         ) : (
-                            <Maximize size={16} className={zoom === -1 ? "text-green-500" : ""} />
+                            <Maximize size={16} className="opacity-50" />
                         )}
                     </button>
                 </div>
@@ -443,30 +454,31 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
                 <div className="flex items-center gap-1 flex-1 justify-end">
                     {/* Live / 30s Toggle & Refresh (Visible on larger screens) */}
                     <div className="hidden lg:flex items-center mr-1 gap-1.5">
-                        <div className="flex items-center rounded-md p-0.5" style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', height: '28px' }}>
+                        <div className="flex items-center px-1 h-[28px]">
                             <button
                                 onClick={() => setIsLiveMode(true)}
-                                className="flex items-center justify-center gap-1.5 px-2.5 h-full text-[10px] uppercase tracking-wider font-bold rounded transition-colors w-[60px]"
-                                style={isLiveMode ? { backgroundColor: '#1e293b', color: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' } : { color: '#94a3b8', backgroundColor: 'transparent' }}
+                                className="flex items-center justify-center gap-1.5 px-2 h-full text-[11px] font-bold transition-colors"
+                                style={{ color: isLiveMode ? 'var(--main-text)' : 'var(--main-text-secondary)' }}
                                 title="Live Preview (Updates immediately as you carefully type)"
                             >
-                                <CircleDot size={12} className={isLiveMode ? "text-blue-400" : ""} />
+                                <CircleDot size={12} className={isLiveMode ? "text-white" : "opacity-50"} />
                                 <span>Live</span>
                             </button>
+                            <span className="text-white/30 font-bold mx-1 select-none">·</span>
                             <button
                                 onClick={() => setIsLiveMode(false)}
-                                className="flex items-center justify-center gap-1.5 px-2.5 h-full text-[10px] uppercase tracking-wider font-bold rounded transition-colors w-[60px]"
-                                style={!isLiveMode ? { backgroundColor: '#1e293b', color: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' } : { color: '#94a3b8', backgroundColor: 'transparent' }}
+                                className="flex items-center justify-center gap-1.5 px-2 h-full text-[11px] font-bold transition-colors"
+                                style={{ color: !isLiveMode ? 'var(--main-text)' : 'var(--main-text-secondary)' }}
                                 title="Delayed Preview (Refreshes PDF 30 seconds after typing stops to save battery)"
                             >
-                                <Clock size={12} className={!isLiveMode ? "text-orange-400" : ""} />
+                                <Clock size={12} className={!isLiveMode ? "text-white" : "opacity-50"} />
                                 <span>30s</span>
                             </button>
                         </div>
                         <button
                             onClick={() => setManualRefreshTrigger(t => t + 1)}
-                            className="flex items-center justify-center p-1.5 border transition-colors active:scale-95"
-                            style={btn}
+                            className="flex items-center justify-center p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
+                            style={{ color: 'var(--main-text)' }}
                             title="Force Refresh Preview PDF Now"
                         >
                             <RefreshCw size={16} className={isGenerating ? "animate-spin text-blue-400" : ""} />
@@ -474,32 +486,35 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
                         <div className="w-px h-5 mx-1" style={{ backgroundColor: 'var(--card-border)' }} />
                     </div>
 
-                    <button onClick={() => setShowThumbnails(v => !v)} className="p-2 sm:p-1.5 border transition-colors"
-                        style={showThumbnails ? btnOn : btn} title="Thumbnails">
+                    <button onClick={() => setShowThumbnails(v => !v)} className="p-2 sm:p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
+                        style={showThumbnails ? { color: 'var(--accent)', backgroundColor: 'transparent' } : { color: 'var(--main-text)' }} title="Thumbnails">
                         <PanelLeft size={16} strokeWidth={showThumbnails ? 3 : 2} />
                     </button>
-                    <button onClick={() => setShowProperties(v => !v)} className="hidden sm:block p-1.5 border transition-colors"
-                        style={showProperties ? btnOn : btn} title="Document Properties">
+                    <button onClick={() => setShowProperties(v => !v)} className="hidden sm:block p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
+                        style={showProperties ? { color: 'var(--accent)', backgroundColor: 'transparent' } : { color: 'var(--main-text)' }} title="Document Properties">
                         <Info size={16} />
                     </button>
                     <div className="hidden lg:block w-px h-5 mx-0.5" style={{ backgroundColor: 'var(--card-border)' }} />
 
                     {/* JSON Export */}
-                    <button onClick={handleExportJSON} className="hidden lg:flex p-2 sm:p-1.5 border transition-colors" style={btn} title="Export JSON">
+                    <button onClick={handleExportJSON} className="hidden lg:flex p-2 sm:p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
+                        style={{ color: 'var(--main-text)' }} title="Export JSON">
                         <FileJson size={16} />
                     </button>
 
                     {/* Tex Export (if LaTeX template) */}
                     {isLatexTemplate(templateId) && (
-                        <button onClick={handleDownloadTex} className="hidden lg:flex p-2 sm:p-1.5 border transition-colors" style={btn} title="Download .TEX Source">
+                        <button onClick={handleDownloadTex} className="hidden lg:flex p-2 sm:p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
+                            style={{ color: 'var(--main-text)' }} title="Download .TEX Source">
                             <Code2 size={16} strokeWidth={2} />
                         </button>
                     )}
 
-                    <button onClick={handlePrint} className="p-2 sm:p-1.5 border transition-colors" style={btn} title="Print">
+                    <button onClick={handlePrint} className="p-2 sm:p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
+                        style={{ color: 'var(--main-text)' }} title="Print">
                         <Printer size={16} />
                     </button>
-                    <button onClick={handleDownload} className="btn-accent p-2 sm:p-1.5 shadow-lg transition-all active:scale-95 hover:brightness-110"
+                    <button onClick={handleDownload} className="btn-accent p-2 sm:p-1.5 rounded shadow-lg transition-all active:scale-95 hover:brightness-110 ml-1"
                         title="Download PDF">
                         <Download size={16} strokeWidth={2.5} />
                     </button>
