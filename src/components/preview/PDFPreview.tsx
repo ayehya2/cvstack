@@ -375,7 +375,7 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
     }
 
     return (
-        <div className="w-full h-full flex flex-col" style={{ backgroundColor: 'var(--main-bg)' }}>
+        <div className="w-full h-full flex flex-col relative" style={{ backgroundColor: 'var(--main-bg)' }}>
             {/* ━━ Toolbar ━━ */}
             <div className="flex items-center gap-2 px-3 py-2 border-b-2 z-20 flex-shrink-0" style={toolbarBg}>
                 {/* Left: filename + page nav */}
@@ -618,27 +618,35 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
 
             {/* ━━ Properties modal ━━ */}
             {showProperties && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                <div className="absolute inset-0 z-[110] flex items-center justify-center bg-black/40 backdrop-blur-[2px]"
                     onClick={() => setShowProperties(false)}>
-                    <div className="border-2 shadow-2xl max-w-sm w-full mx-4"
+                    <div className="shadow-2xl max-w-sm w-full mx-4 border overflow-hidden animate-in fade-in zoom-in duration-200"
                         style={{ backgroundColor: 'var(--card-bg)', color: 'var(--main-text)', borderColor: 'var(--card-border)' }}
                         onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-4 py-3 border-b"
-                            style={{ borderColor: 'var(--card-border)' }}>
-                            <h3 className="font-bold text-sm">Document Properties</h3>
-                            <button onClick={() => setShowProperties(false)} className="p-1 border transition-colors" style={btn}>
-                                <X size={14} />
+                            style={{ backgroundColor: 'rgba(255,255,255,0.02)', borderColor: 'var(--card-border)' }}>
+                            <h3 className="font-bold text-[13px] uppercase tracking-wider opacity-80">Document Properties</h3>
+                            <button onClick={() => setShowProperties(false)} 
+                                className="p-1.5 hover:bg-white/10 rounded transition-colors" 
+                                style={{ color: 'var(--main-text-secondary)' }}>
+                                <X size={16} />
                             </button>
                         </div>
-                        <div className="p-4 space-y-2">
-                            {Object.entries(pdfMetadata).map(([k, v]) => (
-                                <div key={k} className="flex justify-between text-xs">
-                                    <span className="font-semibold" style={txtM}>{k}:</span>
-                                    <span className="text-right max-w-[200px] truncate" style={txt} title={v}>{v}</span>
+                        <div className="p-5 space-y-4">
+                            {Object.entries(pdfMetadata).length > 0 ? (
+                                <div className="space-y-3">
+                                    {Object.entries(pdfMetadata).map(([k, v]) => (
+                                        <div key={k} className="flex justify-between items-baseline gap-4 text-[11px]">
+                                            <span className="font-bold uppercase tracking-tighter opacity-40 shrink-0">{k}:</span>
+                                            <span className="text-right font-medium truncate opacity-90" style={{ color: 'var(--main-text)' }} title={v}>{v}</span>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                            {Object.keys(pdfMetadata).length === 0 && (
-                                <p className="text-xs" style={txtM}>No metadata available.</p>
+                            ) : (
+                                <div className="py-8 text-center">
+                                    <Info size={24} className="mx-auto mb-2 opacity-20" />
+                                    <p className="text-[11px] font-bold uppercase tracking-widest opacity-30 italic">No metadata available</p>
+                                </div>
                             )}
                         </div>
                     </div>
