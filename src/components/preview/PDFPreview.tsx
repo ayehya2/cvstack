@@ -13,7 +13,7 @@ import type { TemplateId, DocumentType } from '../../types';
 import { generateDocumentTitle, generateDocumentFileName } from '../../lib/utils/documentNaming';
 import {
     Download, Printer, ZoomIn, ZoomOut, Maximize, MoveHorizontal,
-    ChevronLeft, ChevronRight, Info, PanelLeft, X, Code2, FileJson,
+    ChevronLeft, ChevronRight, Info, PanelLeft, X,
     CircleDot, Clock, RefreshCw
 } from 'lucide-react';
 import { exportToContentJSON } from '../../lib/data/storage';
@@ -88,7 +88,20 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
     const [pdfMetadata, setPdfMetadata] = useState<Record<string, string>>({});
     const [thumbnails, setThumbnails] = useState<string[]>([]);
 
+    const [exportMenuOpen, setExportMenuOpen] = useState(false);
+    const exportMenuRef = useRef<HTMLDivElement>(null);
+
     const iframeRef = useRef<HTMLIFrameElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+                setExportMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const downloadFileName = generateDocumentFileName({
         userName: resumeData.basics.name || '',
@@ -496,28 +509,67 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
                     </button>
                     <div className="hidden lg:block w-px h-5 mx-0.5" style={{ backgroundColor: 'var(--card-border)' }} />
 
-                    {/* JSON Export */}
-                    <button onClick={handleExportJSON} className="hidden lg:flex p-2 sm:p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
-                        style={{ color: 'var(--main-text)' }} title="Export JSON">
-                        <FileJson size={16} />
-                    </button>
-
-                    {/* Tex Export (if LaTeX template) */}
-                    {isLatexTemplate(templateId) && (
-                        <button onClick={handleDownloadTex} className="hidden lg:flex p-2 sm:p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
-                            style={{ color: 'var(--main-text)' }} title="Download .TEX Source">
-                            <Code2 size={16} strokeWidth={2} />
+                    {/* Export Menu */}
+                    <div className="relative" ref={exportMenuRef}>
+                        <button
+                            onClick={() => setExportMenuOpen(!exportMenuOpen)}
+                            className="btn-accent p-2 sm:p-1.5 rounded shadow-lg transition-all active:scale-95 hover:brightness-110 ml-1"
+                            title="Export Options"
+                        >
+                            <Download size={16} strokeWidth={2.5} />
                         </button>
-                    )}
 
-                    <button onClick={handlePrint} className="p-2 sm:p-1.5 rounded transition-colors hover:bg-white/5 active:bg-white/10"
-                        style={{ color: 'var(--main-text)' }} title="Print">
-                        <Printer size={16} />
-                    </button>
-                    <button onClick={handleDownload} className="btn-accent p-2 sm:p-1.5 rounded shadow-lg transition-all active:scale-95 hover:brightness-110 ml-1"
-                        title="Download PDF">
-                        <Download size={16} strokeWidth={2.5} />
-                    </button>
+                        {exportMenuOpen && (
+                            <div className="absolute right-0 top-full mt-2 w-56 rounded-md shadow-2xl border flex flex-col z-[100] animate-in fade-in slide-in-from-top-2"
+                                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+                                <button
+                                    onClick={() => { handleDownload(); setExportMenuOpen(false); }}
+                                    className="w-full text-left px-3 py-2.5 transition-colors flex items-start gap-3 group"
+                                    style={{ borderBottom: '1px solid var(--card-border)' }}
+                                >
+                                    <Download size={14} className="mt-0.5 text-blue-400 group-hover:-translate-y-0.5 transition-transform" />
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-bold leading-none mb-1" style={{ color: 'var(--main-text)' }}>Download PDF</span>
+                                        <span className="text-[10px] font-semibold leading-none" style={{ color: 'var(--main-text-secondary)' }}>Most common</span>
+                                    </div>
+                                </button>
+
+                                <button
+                                    onClick={() => { handlePrint(); setExportMenuOpen(false); }}
+                                    className="w-full text-left px-3 py-2.5 transition-colors flex items-center gap-3 group"
+                                    style={{ borderBottom: '1px solid var(--card-border)' }}
+                                >
+                                    <Printer size={14} className="group-hover:scale-105 transition-transform" style={{ color: 'var(--main-text-secondary)' }} />
+                                    <span className="text-sm font-bold" style={{ color: 'var(--main-text)' }}>Print PDF</span>
+                                </button>
+
+                                <button
+                                    onClick={() => { handleExportJSON(); setExportMenuOpen(false); }}
+                                    className="w-full text-left px-3 py-2.5 transition-colors flex items-start gap-3 group"
+                                    style={isLatexTemplate(templateId) ? { borderBottom: '1px solid var(--card-border)' } : {}}
+                                >
+                                    <Download size={14} className="mt-0.5 group-hover:-translate-y-0.5 transition-transform" style={{ color: 'var(--main-text-secondary)' }} />
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-bold leading-none mb-1" style={{ color: 'var(--main-text)' }}>Download JSON</span>
+                                        <span className="text-[10px] font-semibold leading-none" style={{ color: 'var(--main-text-secondary)' }}>Resume data</span>
+                                    </div>
+                                </button>
+
+                                {isLatexTemplate(templateId) && (
+                                    <button
+                                        onClick={() => { handleDownloadTex(); setExportMenuOpen(false); }}
+                                        className="w-full text-left px-3 py-2.5 transition-colors flex items-start gap-3 group"
+                                    >
+                                        <Download size={14} className="mt-0.5 group-hover:-translate-y-0.5 transition-transform" style={{ color: 'var(--main-text-secondary)' }} />
+                                        <div className="flex flex-col flex-1">
+                                            <span className="text-sm font-bold leading-none mb-1" style={{ color: 'var(--main-text)' }}>Download LaTeX</span>
+                                            <span className="text-[10px] font-semibold leading-none" style={{ color: 'var(--main-text-secondary)' }}>Source file</span>
+                                        </div>
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
