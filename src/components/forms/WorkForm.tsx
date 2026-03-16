@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useResumeStore } from '../../store'
 import { BulletList } from './BulletList';
 import { SmartDateInput } from './SmartDateInput';
@@ -23,7 +23,7 @@ export function WorkForm() {
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">Experience</h3>
                 <button
                     onClick={addWork}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                    className="btn-add px-3 py-1.5 flex items-center gap-1.5"
                 >
                     <Plus size={12} strokeWidth={3} />
                     Add Job
@@ -43,31 +43,32 @@ export function WorkForm() {
                             <h4 className="font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[10px]">Job #{index + 1}</h4>
                             <button
                                 onClick={() => removeWork(index)}
-                                className="text-red-400/80 hover:text-red-500 font-black text-[10px] uppercase tracking-widest px-3 py-1.5 transition-all bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 active:scale-95"
+                                className="btn-remove px-3 py-1.5 flex items-center gap-1.5"
                             >
+                                <Trash2 size={12} strokeWidth={3} />
                                 Remove
                             </button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Company</label>
+                                <label className="form-label">Company</label>
                                 <input
                                     type="text"
                                     value={job.company}
                                     onChange={(e) => updateWork(index, { company: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="Tech Solutions Inc."
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Position</label>
+                                <label className="form-label">Position</label>
                                 <input
                                     type="text"
                                     value={job.position}
                                     onChange={(e) => updateWork(index, { position: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="Software Engineer"
                                 />
                             </div>
@@ -75,12 +76,12 @@ export function WorkForm() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Location</label>
+                                <label className="form-label">Location</label>
                                 <input
                                     type="text"
                                     value={job.location}
                                     onChange={(e) => updateWork(index, { location: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="San Francisco, CA"
                                 />
                             </div>
@@ -110,10 +111,10 @@ export function WorkForm() {
 
                         <div className="pt-2">
                             <div className="flex justify-between items-center mb-2">
-                                <label className="text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Responsibilities & Achievements</label>
+                                <label className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Responsibilities & Achievements</label>
                                 <button
                                     onClick={() => updateWork(index, { bullets: [...job.bullets, ''] })}
-                                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                                    className="btn-add px-3 py-1.5 flex items-center gap-1.5 text-[10px]"
                                     type="button"
                                 >
                                     <Plus size={12} strokeWidth={3} />

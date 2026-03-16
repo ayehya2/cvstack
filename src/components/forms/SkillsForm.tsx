@@ -1,7 +1,7 @@
 import { useResumeStore } from '../../store'
 import { useState, useEffect } from 'react';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
-import { Plus, X } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { RichTextEditor } from './RichTextEditor';
 
 export function SkillsForm() {
@@ -47,7 +47,7 @@ export function SkillsForm() {
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">Skills</h3>
                 <button
                     onClick={addSkill}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                    className="btn-add px-3 py-1.5 flex items-center gap-1.5"
                 >
                     <Plus size={12} strokeWidth={3} />
                     Add Category
@@ -63,26 +63,23 @@ export function SkillsForm() {
             <div className="space-y-4">
                 {skills.map((skill, index) => (
                     <div key={index} className="bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 p-3 sm:p-5 space-y-3 sm:space-y-4 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-600">
-                        <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
-                            <h4 className="font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[10px]">Category #{index + 1}</h4>
-                            <button
-                                onClick={() => removeSkill(index)}
-                                className="text-red-400/80 hover:text-red-500 font-black text-[10px] uppercase tracking-widest px-3 py-1.5 transition-all bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 active:scale-95"
-                            >
-                                Remove
-                            </button>
-                        </div>
-
-                        <div>
-                            <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Category Name</label>
+                        <div className="flex items-center gap-3 pb-2 border-b border-slate-200 dark:border-slate-700">
+                            <h4 className="font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[10px] whitespace-nowrap">Category #{index + 1}</h4>
                             <input
                                 type="text"
                                 value={skill.category}
                                 onChange={(e) => updateSkill(index, { category: e.target.value })}
-                                className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                className="form-input flex-1"
                                 placeholder="Programming Languages"
                                 spellCheck={true}
                             />
+                            <button
+                                onClick={() => removeSkill(index)}
+                                className="btn-remove px-3 py-1.5 flex items-center gap-1.5 flex-shrink-0"
+                            >
+                                <Trash2 size={12} strokeWidth={3} />
+                                Remove
+                            </button>
                         </div>
 
                         <div>
@@ -98,7 +95,7 @@ export function SkillsForm() {
                                             onClick={() => removeSkillItem(index, itemIndex)}
                                             className="text-red-400 hover:text-red-600 dark:hover:text-red-500 transition-colors"
                                         >
-                                            <X size={12} strokeWidth={3} />
+                                            <Trash2 size={12} strokeWidth={3} />
                                         </button>
                                     </span>
                                 ))}
@@ -119,7 +116,7 @@ export function SkillsForm() {
                                 </div>
                                 <button
                                     onClick={() => addSkillItem(index)}
-                                    className="px-6 h-[38px] sm:h-[42px] bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-md flex items-center gap-2"
+                                    className="px-6 h-[32px] sm:h-[34px] btn-add flex items-center gap-2 transition-all active:scale-95 shadow-md"
                                 >
                                     <Plus size={14} strokeWidth={3} />
                                     Add

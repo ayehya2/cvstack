@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useResumeStore } from '../../store'
 import { BulletList } from './BulletList';
 import { SmartDateInput } from './SmartDateInput';
@@ -23,7 +23,7 @@ export function ProjectsForm() {
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">Projects</h3>
                 <button
                     onClick={addProject}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                    className="btn-add px-3 py-1.5 flex items-center gap-1.5"
                 >
                     <Plus size={12} strokeWidth={3} />
                     Add Project
@@ -43,50 +43,51 @@ export function ProjectsForm() {
                             <h4 className="font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[10px]">Project #{index + 1}</h4>
                             <button
                                 onClick={() => removeProject(index)}
-                                className="text-red-400/80 hover:text-red-500 font-black text-[10px] uppercase tracking-widest px-3 py-1.5 transition-all bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 active:scale-95"
+                                className="btn-remove px-3 py-1.5 flex items-center gap-1.5"
                             >
+                                <Trash2 size={12} strokeWidth={3} />
                                 Remove
                             </button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Project Name</label>
+                                <label className="form-label">Project Name</label>
                                 <input
                                     type="text"
                                     value={project.name}
                                     onChange={(e) => updateProject(index, { name: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="E-Commerce Platform"
                                 />
                             </div>
 
                             <div className="flex gap-2">
                                 <div className="flex-1">
-                                    <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">URL Name</label>
+                                    <label className="form-label">URL Name</label>
                                     <input
                                         type="text"
                                         value={project.urlName}
                                         onChange={(e) => updateProject(index, { urlName: e.target.value })}
-                                        className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                        className="form-input"
                                         placeholder="GitHub"
                                     />
                                 </div>
                                 <div className="flex-[2]">
-                                    <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Project URL</label>
+                                    <label className="form-label">Project URL</label>
                                     <input
                                         type="url"
                                         value={project.url}
                                         onChange={(e) => updateProject(index, { url: e.target.value })}
-                                        className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                        className="form-input"
                                         placeholder="https://github.com/..."
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                            <div>
+                        <div className="flex gap-3 sm:gap-4">
+                            <div style={{ width: '20%', minWidth: 0 }}>
                                 <SmartDateInput
                                     label="Start Date"
                                     type="month"
@@ -96,7 +97,7 @@ export function ProjectsForm() {
                                 />
                             </div>
 
-                            <div>
+                            <div style={{ width: '20%', minWidth: 0 }}>
                                 <SmartDateInput
                                     label="End Date"
                                     type="month"
@@ -107,25 +108,25 @@ export function ProjectsForm() {
                                     showPresentToggle={true}
                                 />
                             </div>
-                        </div>
 
-                        <div>
-                            <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2">Technologies (comma separated)</label>
-                            <input
-                                type="text"
-                                value={project.keywords.join(', ')}
-                                onChange={(e) => updateProject(index, { keywords: e.target.value.split(',').map(s => s.trim()) })}
-                                className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
-                                placeholder="React, Node.js, Stripe, AWS"
-                            />
+                            <div style={{ width: '60%', minWidth: 0 }}>
+                                <label className="form-label">Technologies (comma separated)</label>
+                                <input
+                                    type="text"
+                                    value={project.keywords.join(', ')}
+                                    onChange={(e) => updateProject(index, { keywords: e.target.value.split(',').map(s => s.trim()) })}
+                                    className="form-input"
+                                    placeholder="React, Node.js, Stripe, AWS"
+                                />
+                            </div>
                         </div>
 
                         <div className="pt-2">
                             <div className="flex justify-between items-center mb-2">
-                                <label className="text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Description & Key Features</label>
+                                <label className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Description & Key Features</label>
                                 <button
                                     onClick={() => updateProject(index, { bullets: [...project.bullets, ''] })}
-                                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                                    className="btn-add px-3 py-1.5 flex items-center gap-1.5"
                                     type="button"
                                 >
                                     <Plus size={12} strokeWidth={3} />

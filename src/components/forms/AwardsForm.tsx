@@ -2,7 +2,7 @@ import { useResumeStore } from '../../store'
 import { SmartDateInput } from './SmartDateInput';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { RichTextEditor } from './RichTextEditor';
 
 export function AwardsForm() {
@@ -23,7 +23,7 @@ export function AwardsForm() {
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">Awards</h3>
                 <button
                     onClick={addAward}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                    className="btn-add px-3 py-1.5 flex items-center gap-1.5 text-[10px]"
                 >
                     <Plus size={12} strokeWidth={3} />
                     Add Award
@@ -43,25 +43,37 @@ export function AwardsForm() {
                             <h4 className="font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[10px]">Award #{index + 1}</h4>
                             <button
                                 onClick={() => removeAward(index)}
-                                className="text-red-400/80 hover:text-red-500 font-black text-[10px] uppercase tracking-widest px-3 py-1.5 transition-all bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 active:scale-95"
+                                className="btn-remove px-3 py-1.5 flex items-center gap-1.5 text-[10px]"
                             >
+                                <Trash2 size={12} strokeWidth={3} />
                                 Remove
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                            <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Award Title</label>
+                        <div className="flex gap-3 sm:gap-4">
+                            <div className="flex-[2] min-w-0">
+                                <label className="form-label">Award Title</label>
                                 <input
                                     type="text"
                                     value={award.title}
                                     onChange={(e) => updateAward(index, { title: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="Employee of the Year"
                                 />
                             </div>
 
-                            <div>
+                            <div className="flex-[2] min-w-0">
+                                <label className="form-label">Issuer / Awarder</label>
+                                <input
+                                    type="text"
+                                    value={award.awarder}
+                                    onChange={(e) => updateAward(index, { awarder: e.target.value })}
+                                    className="form-input"
+                                    placeholder="TechVision Inc."
+                                />
+                            </div>
+
+                            <div className="flex-1 min-w-0">
                                 <SmartDateInput
                                     label="Date"
                                     type="month"
@@ -72,19 +84,8 @@ export function AwardsForm() {
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Issuer / Awarder</label>
-                            <input
-                                type="text"
-                                value={award.awarder}
-                                onChange={(e) => updateAward(index, { awarder: e.target.value })}
-                                className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
-                                placeholder="TechVision Inc."
-                            />
-                        </div>
-
                         <div className="pt-1">
-                            <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Summary (optional)</label>
+                            <label className="form-label">Summary (optional)</label>
                             <RichTextEditor
                                 value={award.summary || ''}
                                 onChange={(html) => updateAward(index, { summary: html })}

@@ -11,6 +11,7 @@ import { AwardsForm } from './components/forms/AwardsForm'
 import { CustomSectionForm } from './components/forms/CustomSectionForm'
 import { CoverLetterForm } from './components/forms/CoverLetterForm'
 import { AITab } from './components/forms/AITab'
+import { ResumeIntelligenceTab } from './components/forms/ResumeIntelligenceTab'
 import { ShareAnalyticsView } from './components/forms/ShareAnalyticsView'
 import { FormattingForm } from './components/forms/FormattingForm'
 import { CoverLetterFormattingForm } from './components/forms/CoverLetterFormattingForm'
@@ -900,7 +901,7 @@ function App() { // Stores
   const toolsTabs: TabItem[] = [
     { key: 'job-link', label: 'Job Link & Description', icon: <Zap size={18} />, draggable: false },
     { key: 'import-tool', label: 'Import', icon: <Download size={18} />, draggable: false },
-    { key: 'ats-score', label: 'ATS Score Checker', icon: <BarChart3 size={18} />, draggable: false },
+    { key: 'ats-score', label: 'Resume Intelligence', icon: <BarChart3 size={18} />, draggable: false },
     { key: 'ai', label: 'AI Content Suggestions', icon: <Sparkles size={18} />, draggable: false },
   ];
 
@@ -1267,7 +1268,10 @@ function App() { // Stores
       // Share & Analytics (End of Resume Section)
       sections.push(
         <div key="share-analytics" id="continuous-section-share-analytics" className={dividerClass}>
-          <div className="px-4 py-4 mb-6 text-xs font-black uppercase tracking-[0.2em] text-white/40 bg-white/5 border-y-2 border-white/10 mt-12">Analytics & Sharing</div>
+          <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
+            <Share2 size={14} className="opacity-70" />
+            <span>Analytics & Sharing</span>
+          </div>
           <ShareAnalyticsView />
         </div>
       );
@@ -1365,7 +1369,10 @@ function App() { // Stores
     // Job Link & Description
     sections.push(
       <div key="job-link" id="continuous-section-job-link" className={dividerClass}>
-        <div className="px-4 py-4 mb-6 text-xs font-black uppercase tracking-[0.2em] text-white/40 bg-white/5 border-y-2 border-white/10 mt-12">Job Context</div>
+        <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
+          <Briefcase size={14} className="opacity-70" />
+          <span>Job Context</span>
+        </div>
         <JobLinkTab
           parentApplications={parentApplications}
           onLinkJob={(id) => window.parent.postMessage({ type: 'LINK_PARENT_JOB', id }, '*')}
@@ -1376,7 +1383,10 @@ function App() { // Stores
     // Import Tool
     sections.push(
       <div key="import-tool" id="continuous-section-import-tool" className={dividerClass}>
-        <div className="px-4 py-4 mb-6 text-xs font-black uppercase tracking-[0.2em] text-white/40 bg-white/5 border-y-2 border-white/10 mt-12">Import & Documents</div>
+        <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
+          <Upload size={14} className="opacity-70" />
+          <span>Import & Documents</span>
+        </div>
         <ImportTab
           parentDocuments={parentDocuments}
           onLoadParentDoc={(id) => window.parent.postMessage({ type: 'LOAD_PARENT_DOCUMENT', id }, '*')}
@@ -1384,29 +1394,24 @@ function App() { // Stores
       </div>
     );
 
-    // ATS Score
+    // Resume Intelligence
     sections.push(
       <div key="ats-score" id="continuous-section-ats-score" className={dividerClass}>
-        <div className="px-4 py-4 mb-6 text-xs font-black uppercase tracking-[0.2em] text-white/40 bg-white/5 border-y-2 border-white/10 mt-12">ATS Optimization</div>
-        <div className="p-12 text-center border-2 border-dashed border-slate-300 dark:border-slate-600 bg-white/5">
-          <BarChart3 size={48} className="mx-auto mb-4 text-accent opacity-50" />
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 uppercase tracking-tighter">ATS Score Checker</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-            Our upcoming ATS Analysis tool will scan your resume against specific job descriptions to estimate match probability and identify missing keywords.
-          </p>
-          <div className="mt-8 flex justify-center gap-4">
-            <div className="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
-              <div className="w-1/2 h-full bg-accent animate-[shimmer_2s_infinite]" />
-            </div>
-          </div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-accent mt-4">Module In Development</p>
+        <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
+          <Sparkles size={14} className="opacity-70" />
+          <span>Resume Intelligence</span>
         </div>
+        <ResumeIntelligenceTab />
       </div>
     );
 
     // AI Content Suggestions
     sections.push(
       <div key="ai" id="continuous-section-ai" className={dividerClass}>
+        <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
+          <Zap size={14} className="opacity-70" />
+          <span>AI Content Suggestions</span>
+        </div>
         <AITab />
       </div>
     );
@@ -1469,7 +1474,7 @@ function App() { // Stores
         style={{ backgroundColor: 'var(--sidebar-bg)', borderColor: 'var(--sidebar-border)' }}>
         <button
           onClick={() => setMobileView('form')}
-          className={`flex flex-col items-center gap-0.5 transition-all flex-1 py-2 rounded-xl ${mobileView === 'form' ? 'bg-white/10' : 'opacity-40 hover:opacity-100'}`}
+          className={`flex flex-col items-center gap-0.5 transition-all flex-1 py-2 ${mobileView === 'form' ? 'bg-white/10' : 'opacity-40 hover:opacity-100'}`}
           style={{ color: 'var(--sidebar-text)' }}
         >
           <Pencil size={20} />
@@ -1618,7 +1623,7 @@ function App() { // Stores
                     {/* ━━ Resume Section ━━ */}
                     {showResume && (
                       <>
-                        <div className="px-4 pt-2 pb-1 text-[9px] font-black uppercase tracking-[0.2em] text-white/30">Resume</div>
+                        <div className="px-4 pt-4 pb-1 text-[11px] font-black uppercase tracking-[0.15em] text-white/70">Resume</div>
                         {resumePrimaryTabs.map((tab) => (
                           <SidebarItem
                             key={tab.key}
@@ -1640,11 +1645,10 @@ function App() { // Stores
                             const newId = addCustomSection();
                             if (!continuousMode) setActiveTab(newId);
                           }}
-                          className="w-full flex items-center gap-3 px-4 py-3 transition-colors border-l-4 border-transparent hover:bg-white/5 rounded-none"
-                          style={{ color: 'var(--sidebar-text)' }}
+                          className="w-full flex items-center justify-center gap-3 px-4 py-3 mt-1 transition-colors border border-dashed border-white/15 hover:border-white/30 hover:bg-white/5 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white/70"
                         >
-                          <Plus size={16} className="text-white/40" />
-                          <span className="text-sm font-semibold !text-white/60">Add Custom Section</span>
+                          <Plus size={14} />
+                          <span>Add Custom Section</span>
                         </button>
                         <SidebarItem
                           tab={{ key: 'share-analytics', label: 'Share & Analytics', icon: <Share2 size={18} /> }}
@@ -1665,7 +1669,7 @@ function App() { // Stores
                     {/* ━━ Cover Letter Section ━━ */}
                     {showCoverLetter && (
                       <>
-                        <div className="px-4 pt-4 pb-1 text-[9px] font-black uppercase tracking-[0.2em] text-white/30">Cover Letter</div>
+                        <div className="px-4 pt-6 pb-1 text-[11px] font-black uppercase tracking-[0.15em] text-white/70">Cover Letter</div>
                         {cvTabs.map((tab) => (
                           <SidebarItem
                             key={tab.key}
@@ -1679,7 +1683,7 @@ function App() { // Stores
                     )}
 
                     {/* ━━ Tools Section ━━ */}
-                    <div className="px-4 pt-4 pb-1 text-[9px] font-black uppercase tracking-[0.2em] text-white/30">Tools</div>
+                    <div className="px-4 pt-6 pb-1 text-[11px] font-black uppercase tracking-[0.15em] text-white/70">Tools</div>
                     {toolsTabs.map((tab) => (
                       <SidebarItem
                         key={tab.key}
@@ -1910,72 +1914,18 @@ function App() { // Stores
                   </Suspense>
                 )}
                 {activeTab === 'ai' && <AITab />}
-                {activeTab === 'ats-score' && (
-                  <div className="p-8 text-center border-2 border-dashed border-slate-300 dark:border-slate-600">
-                    <BarChart3 size={32} className="mx-auto mb-3 text-slate-400" />
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">ATS Score Checker</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Coming soon — Analyze how well your resume passes Applicant Tracking Systems.</p>
-                  </div>
-                )}
+                {activeTab === 'ats-score' && <ResumeIntelligenceTab />}
                 {activeTab === 'job-link' && (
-                  <div className="p-8 text-center border-2 border-dashed border-slate-300 dark:border-slate-600">
-                    <Zap size={32} className="mx-auto mb-3 text-slate-400" />
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Job Link & Description</h3>
-                    {window.self !== window.top ? (
-                      <div className="space-y-6">
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Select a job from your tracker to auto-tailor your documents.</p>
-                        <div className="max-w-md mx-auto">
-                          <div className="relative border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-950 text-left shadow-lg">
-                            <div className="px-4 py-3.5 border-b flex items-center gap-3" style={{ borderColor: 'var(--card-border)' }}>
-                              <Search size={12} className="opacity-20" />
-                              <input
-                                type="text"
-                                value={jobSearch}
-                                onChange={e => setJobSearch(e.target.value)}
-                                placeholder="SEARCH JOBS..."
-                                className="bg-transparent text-[9px] outline-none w-full font-black tracking-widest uppercase placeholder:opacity-20"
-                              />
-                            </div>
-                            <div className="max-h-80 overflow-y-auto custom-scrollbar">
-                              {parentApplications.filter(app => !jobSearch || app.company.toLowerCase().includes(jobSearch.toLowerCase()) || app.position.toLowerCase().includes(jobSearch.toLowerCase())).length === 0 ? (
-                                <div className="p-8 text-center text-[10px] opacity-30 uppercase font-bold tracking-widest italic">No Jobs Linked Yet</div>
-                              ) : (
-                                parentApplications
-                                  .filter(app => !jobSearch || app.company.toLowerCase().includes(jobSearch.toLowerCase()) || app.position.toLowerCase().includes(jobSearch.toLowerCase()))
-                                  .map((app: ParentApplication) => (
-                                    <button
-                                      key={app.id}
-                                      onClick={() => { window.parent.postMessage({ type: 'LINK_PARENT_JOB', id: app.id }, '*'); }}
-                                      className="w-full text-left px-5 py-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors border-b last:border-0 border-slate-100 dark:border-white/5 group"
-                                    >
-                                      <div className="font-bold text-xs group-hover:text-accent transition-colors">{app.position}</div>
-                                      <div className="text-[9px] opacity-50 font-bold uppercase tracking-tight mt-0.5">{app.company}</div>
-                                    </button>
-                                  ))
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-slate-500 dark:text-slate-400">Coming soon — Paste a job URL or description to auto-tailor your documents.</p>
-                    )}
-                  </div>
+                  <JobLinkTab
+                    parentApplications={parentApplications}
+                    onLinkJob={(id) => window.parent.postMessage({ type: 'LINK_PARENT_JOB', id }, '*')}
+                  />
                 )}
                 {activeTab === 'import-tool' && (
-                  <div className="p-8 text-center border-2 border-dashed border-slate-300 dark:border-slate-600">
-                    <Download size={32} className="mx-auto mb-3 text-slate-400" />
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Import</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Import your existing resume from various file formats.</p>
-                    <button
-                      onClick={() => { handleImport(); }}
-                      disabled={isImporting}
-                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase tracking-widest text-xs transition-all flex items-center gap-2 mx-auto disabled:opacity-50 active:scale-95 shadow-lg"
-                    >
-                      <Upload size={16} />
-                      <span>{isImporting ? 'Importing...' : 'Upload JSON/PDF/DOCX'}</span>
-                    </button>
-                  </div>
+                  <ImportTab
+                    parentDocuments={parentDocuments}
+                    onLoadParentDoc={(id) => window.parent.postMessage({ type: 'LOAD_PARENT_DOCUMENT', id }, '*')}
+                  />
                 )}
                 {isAdvancedMode && (activeTab === 'formatting' || activeTab === 'cv-formatting') && (
                   activeTab === 'cv-formatting'
@@ -2273,7 +2223,7 @@ function App() { // Stores
         {/* ━━ PDF Preview Panel ━━ */}
         <aside className={`
           flex-shrink-0 transition-all duration-300
-          ${mobileView === 'preview' ? 'w-full 2xl:w-[1100px] xl:w-[900px] lg:w-[70%]' : 'w-full 2xl:w-[900px] xl:w-[800px] lg:w-[45%] md:w-[450px]'}
+          ${mobileView === 'preview' ? 'w-full 2xl:w-[1100px] xl:w-[900px] lg:w-[70%]' : 'w-full 2xl:w-[900px] xl:w-[700px] lg:w-[38%] md:w-[350px]'}
           ${mobileView !== 'preview' ? 'hidden lg:block md:block' : ''}
           `} style={{ backgroundColor: 'var(--card-bg)' }}>
           <div className="sticky top-0 h-screen">

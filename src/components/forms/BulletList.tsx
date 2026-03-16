@@ -1,4 +1,4 @@
-import { X, Plus } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import { useEffect } from 'react';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { RichTextEditor } from './RichTextEditor';
@@ -56,12 +56,12 @@ export function BulletList({ bullets, onChange, placeholder, showAddButton = tru
                     {bullets.length > 1 && (
                         <button
                             onClick={() => removeBullet(idx)}
-                            className="w-8 sm:w-9 self-stretch flex-shrink-0 bg-red-500/5 hover:bg-red-500/10 text-red-500/80 hover:text-red-500 border border-red-500/20 transition-all flex items-center justify-center rounded-none active:scale-95"
+                            className="btn-remove w-8 sm:w-9 self-stretch flex-shrink-0 flex items-center justify-center"
                             type="button"
                             title="Remove point"
                         >
-                            <X size={14} strokeWidth={3} className="sm:hidden" />
-                            <X size={16} strokeWidth={3} className="hidden sm:block" />
+                            <Trash2 size={14} strokeWidth={3} className="sm:hidden" />
+                            <Trash2 size={16} strokeWidth={3} className="hidden sm:block" />
                         </button>
                     )}
                 </div>
@@ -70,7 +70,7 @@ export function BulletList({ bullets, onChange, placeholder, showAddButton = tru
                 {showAddButton && (
                     <button
                         onClick={addBullet}
-                        className="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-md flex items-center justify-center gap-2"
+                        className="btn-add w-full py-1.5 flex items-center justify-center gap-2"
                         type="button"
                     >
                         <Plus size={12} strokeWidth={3} />

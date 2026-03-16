@@ -22,7 +22,7 @@ export function EducationForm() {
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">Education</h3>
                 <button
                     onClick={addEducation}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                    className="btn-add px-3 py-1.5 flex items-center gap-1.5"
                 >
                     <Plus size={12} strokeWidth={3} />
                     Add Edu
@@ -42,31 +42,32 @@ export function EducationForm() {
                             <h4 className="font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[10px]">Education #{index + 1}</h4>
                             <button
                                 onClick={() => removeEducation(index)}
-                                className="text-red-400/80 hover:text-red-500 font-black text-[10px] uppercase tracking-widest px-3 py-1.5 transition-all bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 active:scale-95"
+                                className="btn-remove px-3 py-1.5 flex items-center gap-1.5"
                             >
+                                <Trash2 size={12} strokeWidth={3} />
                                 Remove
                             </button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Institution</label>
+                                <label className="form-label">Institution</label>
                                 <input
                                     type="text"
                                     value={edu.institution}
                                     onChange={(e) => updateEducation(index, { institution: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="University of Technology"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Location</label>
+                                <label className="form-label">Location</label>
                                 <input
                                     type="text"
                                     value={edu.location}
                                     onChange={(e) => updateEducation(index, { location: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="Boston, MA"
                                 />
                             </div>
@@ -74,23 +75,23 @@ export function EducationForm() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Degree</label>
+                                <label className="form-label">Degree</label>
                                 <input
                                     type="text"
                                     value={edu.degree}
                                     onChange={(e) => updateEducation(index, { degree: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="Bachelor of Science"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Field of Study</label>
+                                <label className="form-label">Field of Study</label>
                                 <input
                                     type="text"
                                     value={edu.field}
                                     onChange={(e) => updateEducation(index, { field: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="Computer Science"
                                 />
                             </div>
@@ -110,22 +111,22 @@ export function EducationForm() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">GPA (optional)</label>
+                                <label className="form-label">GPA (optional)</label>
                                 <input
                                     type="text"
                                     value={edu.gpa || ''}
                                     onChange={(e) => updateEducation(index, { gpa: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="3.8/4.0"
                                 />
                             </div>
                             <div>
-                                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Thesis (optional)</label>
+                                <label className="form-label">Thesis (optional)</label>
                                 <input
                                     type="text"
                                     value={edu.thesis || ''}
                                     onChange={(e) => updateEducation(index, { thesis: e.target.value })}
-                                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                    className="form-input"
                                     placeholder="Title of your thesis"
                                 />
                             </div>
@@ -142,7 +143,7 @@ export function EducationForm() {
                                         const newClubs = [...(edu.clubs || []), { name: '', role: '', location: '', startDate: '', endDate: '', bullets: [''] }];
                                         updateEducation(index, { clubs: newClubs });
                                     }}
-                                    className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 border border-blue-200 dark:border-blue-800 transition-all active:scale-95"
+                                    className="btn-add px-3 py-1.5 flex items-center gap-1.5"
                                 >
                                     <Plus size={10} strokeWidth={3} /> Add Club
                                 </button>
@@ -155,13 +156,13 @@ export function EducationForm() {
                                                 const newClubs = edu.clubs?.filter((_, i) => i !== cIdx);
                                                 updateEducation(index, { clubs: newClubs });
                                             }}
-                                            className="absolute top-2 right-2 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all rounded"
+                                            className="absolute top-2 right-2 p-1.5 btn-remove !bg-transparent !border-none !shadow-none opacity-40 hover:opacity-100 transition-all"
                                         >
                                             <Trash2 size={14} />
                                         </button>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                             <div>
-                                                <label className="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Organization Name</label>
+                                                <label className="form-label">Organization Name</label>
                                                 <input
                                                     type="text"
                                                     value={club.name}
@@ -171,11 +172,11 @@ export function EducationForm() {
                                                         updateEducation(index, { clubs: newClubs });
                                                     }}
                                                     placeholder="e.g. Robotics Club"
-                                                    className="w-full px-3 py-1.5 border-2 border-slate-200 dark:border-slate-700 focus:border-slate-400 outline-none bg-slate-50/50 dark:bg-slate-900/30 text-[11px] font-bold"
+                                                    className="form-input"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Role / Title</label>
+                                                <label className="form-label">Role / Title</label>
                                                 <input
                                                     type="text"
                                                     value={club.role}
@@ -185,7 +186,7 @@ export function EducationForm() {
                                                         updateEducation(index, { clubs: newClubs });
                                                     }}
                                                     placeholder="e.g. President"
-                                                    className="w-full px-3 py-1.5 border-2 border-slate-200 dark:border-slate-700 focus:border-slate-400 outline-none bg-slate-50/50 dark:bg-slate-900/30 text-[11px]"
+                                                    className="form-input"
                                                 />
                                             </div>
                                         </div>
@@ -240,7 +241,8 @@ export function EducationForm() {
                                         const newActs = [...(edu.activities || []), { title: 'Honors & Awards', items: [''] }];
                                         updateEducation(index, { activities: newActs });
                                     }}
-                                    className="text-[10px] font-black uppercase tracking-widest text-amber-600 hover:text-amber-700 flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 border border-amber-200 dark:border-amber-800 transition-all active:scale-95"
+                                    className="btn-add px-3 py-1.5 flex items-center gap-1.5"
+                                    style={{ color: '#d97706', backgroundColor: '#fff7ed', borderColor: '#ffedd5' } as React.CSSProperties}
                                 >
                                     <Plus size={10} strokeWidth={3} /> Add Section
                                 </button>
@@ -253,12 +255,12 @@ export function EducationForm() {
                                                 const newActs = edu.activities?.filter((_, i) => i !== sIdx);
                                                 updateEducation(index, { activities: newActs });
                                             }}
-                                            className="absolute top-2 right-2 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all rounded"
+                                            className="absolute top-2 right-2 p-1.5 btn-remove !bg-transparent !border-none !shadow-none opacity-40 hover:opacity-100 transition-all"
                                         >
                                             <Trash2 size={14} />
                                         </button>
                                         <div className="mb-3">
-                                            <label className="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Section Title</label>
+                                            <label className="form-label">Section Title</label>
                                             <input
                                                 type="text"
                                                 value={section.title}
@@ -268,7 +270,7 @@ export function EducationForm() {
                                                     updateEducation(index, { activities: newActs });
                                                 }}
                                                 placeholder="e.g. Honors & Awards"
-                                                className="w-full md:w-1/2 px-3 py-1.5 border-2 border-slate-200 dark:border-slate-700 focus:border-slate-400 outline-none bg-slate-50/50 dark:bg-slate-900/30 text-[11px] font-black uppercase tracking-tight"
+                                                className="form-input w-full md:w-1/2 font-black uppercase tracking-tight"
                                             />
                                         </div>
                                         <div className="space-y-2 mt-4 ml-2 border-l-2 border-slate-100 dark:border-slate-800 pl-4">

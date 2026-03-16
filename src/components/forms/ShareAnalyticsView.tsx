@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useResumeStore } from '../../store';
 import { buildShareUrl } from '../../lib/shareUtils';
-import { Link2, Copy, Check, BarChart3, RefreshCw } from 'lucide-react';
+import { Link2, Copy, Check, BarChart3, RefreshCw, AlertTriangle } from 'lucide-react';
 
 export function ShareAnalyticsView() {
     const resumeData = useResumeStore(state => state.resumeData);
@@ -47,15 +47,15 @@ export function ShareAnalyticsView() {
     return (
         <div className="space-y-8">
             {/* ── Share Section ── */}
-            <div>
-                <div className="flex items-center gap-3 mb-4">
-                    <Link2 size={20} style={{ color: 'var(--accent)' }} />
-                    <h3 className="text-xl font-bold" style={{ color: 'var(--main-text)' }}>
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4 border-b pb-2 border-slate-50 dark:border-slate-800">
+                    <Link2 size={16} style={{ color: 'var(--accent)' }} />
+                    <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--main-text)' }}>
                         Share Resume
                     </h3>
                 </div>
 
-                <p className="text-sm mb-4 leading-relaxed" style={{ color: 'var(--main-text-secondary)' }}>
+                <p className="text-xs mb-6 leading-relaxed opacity-70" style={{ color: 'var(--main-text-secondary)' }}>
                     Generate a shareable link that contains your entire resume. Anyone with the link can view a read-only version of your resume — no account required.
                 </p>
 
@@ -63,37 +63,37 @@ export function ShareAnalyticsView() {
                 <button
                     onClick={handleGenerate}
                     disabled={generating}
-                    className="w-full flex items-center justify-center gap-2 py-3 text-sm font-bold uppercase tracking-wider transition-all rounded-none btn-accent disabled:opacity-50"
+                    className="btn-accent w-full flex items-center justify-center gap-2 py-3 px-6 shadow-lg transition-all active:scale-95 disabled:opacity-50"
                 >
                     {generating ? (
                         <>
                             <RefreshCw size={16} className="animate-spin" />
-                            <span>Generating…</span>
+                            <span className="text-[11px] font-black uppercase tracking-widest">Generating…</span>
                         </>
                     ) : shareUrl ? (
                         <>
                             <RefreshCw size={16} />
-                            <span>Regenerate Link</span>
+                            <span className="text-[11px] font-black uppercase tracking-widest">Regenerate Link</span>
                         </>
                     ) : (
                         <>
                             <Link2 size={16} />
-                            <span>Generate Share Link</span>
+                            <span className="text-[11px] font-black uppercase tracking-widest">Generate Share Link</span>
                         </>
                     )}
                 </button>
 
                 {/* Generated URL Display */}
                 {shareUrl && (
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-6 space-y-4">
                         <div className="flex gap-2">
                             <input
                                 type="text"
                                 value={shareUrl}
                                 readOnly
-                                className="flex-1 px-3 py-2 text-xs font-mono border-2 rounded-none truncate"
+                                className="flex-1 px-3 py-2 text-xs font-mono border-2 focus:border-accent outline-none transition-all"
                                 style={{
-                                    backgroundColor: 'var(--card-bg)',
+                                    backgroundColor: 'var(--input-bg)',
                                     borderColor: 'var(--card-border)',
                                     color: 'var(--main-text)',
                                 }}
@@ -101,7 +101,7 @@ export function ShareAnalyticsView() {
                             />
                             <button
                                 onClick={handleCopy}
-                                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider border-2 rounded-none transition-all"
+                                className="flex items-center justify-center gap-2 px-6 border-2 font-black text-[11px] uppercase tracking-widest transition-all active:scale-95"
                                 style={{
                                     backgroundColor: copied ? '#16a34a' : 'transparent',
                                     borderColor: copied ? '#16a34a' : 'var(--card-border)',
@@ -109,25 +109,25 @@ export function ShareAnalyticsView() {
                                 }}
                             >
                                 {copied ? <Check size={14} /> : <Copy size={14} />}
-                                <span>{copied ? 'Copied!' : 'Copy'}</span>
+                                <span>{copied ? 'Copied' : 'Copy'}</span>
                             </button>
                         </div>
 
                         {/* URL stats */}
                         <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--main-text-secondary)' }}>
+                            <span className="text-[9px] font-black uppercase tracking-widest opacity-40 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded" style={{ color: 'var(--main-text-secondary)' }}>
                                 URL Length: {urlLength.toLocaleString()} chars
                             </span>
                             {urlLength > 8000 && (
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-500">
-                                    ⚠ Long URL — some platforms may truncate
+                                <span className="text-[9px] font-black uppercase tracking-widest text-red-500 flex items-center gap-1">
+                                    <AlertTriangle size={10} /> Truncation Risk
                                 </span>
                             )}
                         </div>
 
                         {/* Info note */}
-                        <div className="p-3 border-2 border-dashed" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
-                            <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed" style={{ color: 'var(--main-text-secondary)' }}>
+                        <div className="p-4 border-2 border-dashed bg-orange-50/20 dark:bg-orange-950/10" style={{ borderColor: 'rgba(234, 88, 12, 0.2)' }}>
+                            <p className="text-[10px] font-bold uppercase tracking-wider leading-relaxed text-orange-600/80 dark:text-orange-400/80">
                                 This link reflects your resume at the moment it was generated. After making updates, click "Regenerate Link" to create a new one.
                             </p>
                         </div>
@@ -136,23 +136,25 @@ export function ShareAnalyticsView() {
             </div>
 
             {/* ── Analytics Section (Placeholder) ── */}
-            <div className="border-t-2 pt-8" style={{ borderColor: 'var(--card-border)' }}>
-                <div className="flex items-center gap-3 mb-4">
-                    <BarChart3 size={20} style={{ color: 'var(--main-text-secondary)' }} />
-                    <h3 className="text-xl font-bold" style={{ color: 'var(--main-text)' }}>
+            <div className="border-t-2 pt-8 border-slate-100 dark:border-slate-800/50">
+                <div className="flex items-center gap-2 mb-4">
+                    <BarChart3 size={16} style={{ color: 'var(--main-text-secondary)' }} />
+                    <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--main-text)' }}>
                         Analytics
                     </h3>
                 </div>
 
                 <div
-                    className="flex flex-col items-center justify-center py-12 border-2 border-dashed text-center"
-                    style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}
+                    className="flex flex-col items-center justify-center py-16 border-2 border-dashed"
+                    style={{ borderColor: 'var(--card-border)', backgroundColor: 'transparent' }}
                 >
-                    <BarChart3 size={40} className="mb-3 opacity-20" style={{ color: 'var(--main-text-secondary)' }} />
-                    <p className="text-sm font-semibold" style={{ color: 'var(--main-text-secondary)' }}>
+                    <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                        <BarChart3 size={32} className="opacity-20" style={{ color: 'var(--main-text-secondary)' }} />
+                    </div>
+                    <p className="text-xs font-black uppercase tracking-widest" style={{ color: 'var(--main-text-secondary)' }}>
                         Analytics coming soon
                     </p>
-                    <p className="text-xs mt-1.5 max-w-[280px]" style={{ color: 'var(--main-text-secondary)', opacity: 0.6 }}>
+                    <p className="text-[10px] font-bold mt-2 max-w-[280px] opacity-40 uppercase tracking-wider" style={{ color: 'var(--main-text-secondary)' }}>
                         Track views, downloads, and engagement for your shared resume links.
                     </p>
                 </div>

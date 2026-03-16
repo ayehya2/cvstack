@@ -3,7 +3,7 @@ import { useModal } from '../ThemedModal';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { BulletList } from './BulletList';
 import { useEffect } from 'react';
-import { Plus, ExternalLink } from 'lucide-react';
+import { Plus, ExternalLink, Trash2 } from 'lucide-react';
 import type { CustomSection, CustomSectionEntry } from '../../types';
 import { SmartDateInput } from './SmartDateInput';
 import { RichTextEditor } from './RichTextEditor';
@@ -70,12 +70,12 @@ export function CustomSectionForm({ sectionId }: CustomSectionFormProps) {
                                 type="text"
                                 value={section.title}
                                 onChange={(e) => handleTitleChange(section.id, e.target.value)}
-                                className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-black text-lg sm:text-xl transition-all h-[40px] sm:h-[46px]"
+                                className="form-input font-black text-lg sm:text-xl h-[34px] sm:h-[36px]"
                                 placeholder="Section Title"
                             />
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="flex bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 p-1 h-[40px] sm:h-[46px]">
+                            <div className="flex bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 p-0.5 h-[34px] sm:h-[36px]">
                                 <button
                                     onClick={() => handleTypeChange(section.id, 'bullets')}
                                     className={`px-3 sm:px-4 py-1 text-[10px] font-black uppercase tracking-widest transition-all rounded-none ${section.type === 'bullets' ? 'btn-accent shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 dark:hover:bg-slate-700/50'}`}
@@ -91,11 +91,12 @@ export function CustomSectionForm({ sectionId }: CustomSectionFormProps) {
                             </div>
                             <button
                                 onClick={() => handleRemoveSection(section.id)}
-                                className="text-red-400/80 hover:text-red-500 font-black text-[10px] uppercase tracking-widest px-3 py-1.5 transition-all bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 active:scale-95 h-[40px] sm:h-[46px]"
+                                className="btn-remove px-3 py-1 flex items-center gap-1.5 h-[34px] sm:h-[36px]"
                                 title="Delete Entire Section"
                             >
+                                <Trash2 size={16} strokeWidth={3} />
                                 <span className="hidden sm:inline">Remove Section</span>
-                                <span className="sm:hidden">Delete</span>
+                                <span className="sm:hidden text-[8px]">Del</span>
                             </button>
                         </div>
                     </div>
@@ -108,31 +109,32 @@ export function CustomSectionForm({ sectionId }: CustomSectionFormProps) {
                                     <h4 className="font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[10px]">Entry #{index + 1}</h4>
                                     <button
                                         onClick={() => removeCustomSectionItem(section.id, index)}
-                                        className="text-red-400/80 hover:text-red-500 font-black text-[10px] uppercase tracking-widest px-3 py-1.5 transition-all bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 active:scale-95"
+                                        className="btn-remove px-3 py-1.5 flex items-center gap-1.5"
                                         title="Remove Entry"
                                     >
+                                        <Trash2 size={12} strokeWidth={3} />
                                         Remove
                                     </button>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                                     <div>
-                                        <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Primary Heading</label>
+                                        <label className="form-label">Primary Heading</label>
                                         <input
                                             type="text"
                                             value={item.title}
                                             onChange={(e) => updateCustomSectionItem(section.id, index, { title: e.target.value })}
-                                            className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                            className="form-input"
                                             placeholder="e.g., Google Cloud Architect certificate"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Sub-heading</label>
+                                        <label className="form-label">Sub-heading</label>
                                         <input
                                             type="text"
                                             value={item.subtitle}
                                             onChange={(e) => updateCustomSectionItem(section.id, index, { subtitle: e.target.value })}
-                                            className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                            className="form-input"
                                             placeholder="e.g., Google Training"
                                         />
                                     </div>
@@ -151,18 +153,18 @@ export function CustomSectionForm({ sectionId }: CustomSectionFormProps) {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Location</label>
+                                        <label className="form-label">Location</label>
                                         <input
                                             type="text"
                                             value={item.location}
                                             onChange={(e) => updateCustomSectionItem(section.id, index, { location: e.target.value })}
-                                            className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                            className="form-input"
                                             placeholder="Remote / Sydney, AU"
                                         />
                                     </div>
                                     <div>
                                         <div className="flex justify-between items-center mb-1">
-                                            <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Link</label>
+                                            <label className="form-label">Link</label>
                                             {item.link && (
                                                 <a
                                                     href={item.link.startsWith('http') ? item.link : `https://${item.link}`}
@@ -179,7 +181,7 @@ export function CustomSectionForm({ sectionId }: CustomSectionFormProps) {
                                             type="text"
                                             value={item.link}
                                             onChange={(e) => updateCustomSectionItem(section.id, index, { link: e.target.value })}
-                                            className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                            className="form-input"
                                             placeholder="https://verify.link/..."
                                         />
                                     </div>
@@ -191,7 +193,7 @@ export function CustomSectionForm({ sectionId }: CustomSectionFormProps) {
                                         {section.type === 'bullets' && (
                                             <button
                                                 onClick={() => updateCustomSectionItem(section.id, index, { bullets: [...item.bullets, ''] })}
-                                                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-md flex items-center gap-1.5"
+                                                className="btn-add px-3 py-1.5 flex items-center gap-1.5"
                                                 type="button"
                                             >
                                                 <Plus size={12} strokeWidth={3} />
@@ -218,7 +220,7 @@ export function CustomSectionForm({ sectionId }: CustomSectionFormProps) {
 
                         <button
                             onClick={() => addCustomSectionItem(section.id)}
-                            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 rounded-none shadow-md active:scale-[0.99]"
+                            className="w-full py-3 btn-add flex items-center justify-center gap-2 h-[46px]"
                         >
                             <Plus size={16} strokeWidth={3} />
                             <span>Add New Entry to {section.title}</span>

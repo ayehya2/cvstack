@@ -51,7 +51,7 @@ export function SmartDateInput({
         return (
             <div className={`w-full ${className}`}>
                 {label && (
-                    <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
+                    <label className="form-label">
                         {label}
                     </label>
                 )}
@@ -59,7 +59,7 @@ export function SmartDateInput({
                     type="date"
                     value={toInputDate(value)}
                     onChange={handleNativeChange}
-                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all h-[38px] sm:h-[42px]"
+                    className="form-input"
                 />
             </div>
         );
@@ -96,9 +96,6 @@ function MonthPicker({ value, onChange, label, className = '', showPresent, show
 
     const [viewYear, setViewYear] = useState(parsed.year);
 
-    useEffect(() => {
-        if (parsed.year && !isPresent) setViewYear(parsed.year);
-    }, [parsed.year, isPresent]);
 
     useEffect(() => {
         if (!open) return;
@@ -123,19 +120,22 @@ function MonthPicker({ value, onChange, label, className = '', showPresent, show
     return (
         <div ref={wrapperRef} className={`w-full relative ${className}`}>
             {label && (
-                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
+                <label className="form-label">
                     {label}
                 </label>
             )}
 
             <button
                 type="button"
-                onClick={() => setOpen(!open)}
-                className={`w-full px-3 py-1.5 sm:py-2 border-2 text-left font-medium transition-all h-[38px] sm:h-[42px] flex items-center justify-between ${
+                onClick={() => {
+                    if (!open && parsed.year && !isPresent) setViewYear(parsed.year);
+                    setOpen(!open);
+                }}
+                className={`form-input text-left flex items-center justify-between cursor-pointer ${
                     open
-                        ? 'border-blue-500 ring-2 ring-blue-400/20 bg-white dark:bg-slate-950'
-                        : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-950 hover:border-slate-400 dark:hover:border-slate-500'
-                } ${displayText ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'}`}
+                        ? '!border-blue-500 ring-2 ring-blue-400/20'
+                        : 'hover:border-slate-400 dark:hover:border-slate-500'
+                } ${displayText ? '' : '!text-slate-400 dark:!text-slate-500'}`}
             >
                 <span className={isPresent ? 'text-blue-600 dark:text-blue-400 font-semibold' : ''}>
                     {displayText || 'MM / YYYY'}
@@ -166,7 +166,7 @@ function MonthPicker({ value, onChange, label, className = '', showPresent, show
                             return (
                                 <button key={m} type="button" onClick={() => handleMonthClick(idx)}
                                     className={`py-1.5 text-xs font-semibold transition-all rounded-sm ${
-                                        isSelected ? 'bg-blue-600 text-white shadow-sm'
+                                        isSelected ? 'btn-add text-white shadow-sm'
                                             : isCurrent ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100'
                                                 : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                                     }`}
@@ -181,7 +181,7 @@ function MonthPicker({ value, onChange, label, className = '', showPresent, show
                             <label className="flex items-center gap-2 cursor-pointer select-none group">
                                 <div className="relative">
                                     <input type="checkbox" checked={isPresent} onChange={handlePresentToggle} className="sr-only" />
-                                    <div className={`w-9 h-5 rounded-full transition-colors ${isPresent ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                                    <div className={`w-9 h-5 rounded-full transition-colors ${isPresent ? 'btn-add' : 'bg-slate-300 dark:bg-slate-600'}`} />
                                     <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${isPresent ? 'translate-x-4' : 'translate-x-0'}`} />
                                 </div>
                                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">

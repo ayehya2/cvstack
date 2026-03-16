@@ -91,7 +91,20 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
 
     /* ── Generate PDF blob ── */
     useEffect(() => {
-        const currentState = { resumeData, templateId, documentType, coverLetterData, customLatexSource, latexFormatting };
+        // Optimization: Only track data relevant to the current document type to prevent unnecessary rerenders
+        // e.g. Changing cover letter info shouldn't rerender the resume PDF.
+        const currentState = {
+            templateId,
+            documentType,
+            customLatexSource,
+            latexFormatting,
+            // Only include the data that actually affects the current document
+            resumeData: documentType === 'resume' ? resumeData : null,
+            coverLetterData: documentType === 'coverletter' ? coverLetterData : null,
+            // Header/Signature in cover letter often depends on resume basics
+            basics: documentType === 'coverletter' ? resumeData.basics : null,
+        };
+
         if (previousDataRef.current && equal(currentState, previousDataRef.current) && pdfBlob) return;
         const gen = ++generationRef.current;
 
