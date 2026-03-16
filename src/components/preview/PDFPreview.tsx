@@ -199,6 +199,7 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
         if (!pdfUrl) return '';
         const parts = ['toolbar=0', 'navpanes=0'];
         if (zoom === 0) parts.push('view=FitH');
+        else if (zoom === -1) parts.push('view=Fit');
         else parts.push(`zoom=${zoom}`);
         if (currentPage > 1) parts.push(`page=${currentPage}`);
         return `${pdfUrl}#${parts.join('&')}`;
@@ -209,17 +210,18 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
     /* ── Zoom controls ── */
     const handleZoomIn = useCallback(() => {
         setZoom(z => {
-            const cur = z === 0 ? 100 : z;
+            const cur = (z === 0 || z === -1) ? 100 : z;
             return Math.min(cur + 25, 500);
         });
     }, []);
     const handleZoomOut = useCallback(() => {
         setZoom(z => {
-            const cur = z === 0 ? 100 : z;
+            const cur = (z === 0 || z === -1) ? 100 : z;
             return Math.max(cur - 25, 25);
         });
     }, []);
     const handleFitToWidth = useCallback(() => setZoom(0), []);
+    const handleFitToPage = useCallback(() => setZoom(-1), []);
 
     /* ── Page nav ── */
     const goToPage = useCallback((p: number) => {
@@ -287,7 +289,7 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
     const btn: React.CSSProperties = { backgroundColor: 'var(--input-bg)', color: 'var(--main-text)', borderColor: 'var(--input-border)' };
     const btnOn: React.CSSProperties = { ...btn, outline: '2px solid var(--accent)', outlineOffset: '-2px' };
 
-    const zoomLabel = zoom === 0 ? 'Fit' : `${zoom}%`;
+    const zoomLabel = zoom === 0 ? 'Width' : zoom === -1 ? 'Page' : `${zoom}%`;
 
     /* ── Error ── */
     if (error && !pdfBlob) {
@@ -361,6 +363,10 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
                     </span>
                     <button onClick={handleZoomIn} className="p-2 sm:p-1.5 border transition-colors" style={btn} title="Zoom In">
                         <ZoomIn size={16} />
+                    </button>
+                    <button onClick={handleFitToPage} className="p-2 sm:p-1.5 border transition-colors"
+                        style={zoom === -1 ? btnOn : btn} title="Fit to Page">
+                        <Maximize size={16} className="rotate-45 scale-75" />
                     </button>
                     <button onClick={handleFitToWidth} className="p-2 sm:p-1.5 border transition-colors"
                         style={zoom === 0 ? btnOn : btn} title="Fit to Width">

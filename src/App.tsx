@@ -83,6 +83,10 @@ import {
   Redo2,
   BarChart3,
   Download,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react'
 import './styles/index.css'
 
@@ -1445,7 +1449,7 @@ function App() { // Stores
   }
 
   return (
-    <div className="h-screen flex flex-col lg:flex-row overflow-hidden" style={{ backgroundColor: 'var(--main-bg)' }}>
+    <div className="h-screen flex flex-col lg:flex-row overflow-hidden" style={{ backgroundColor: 'var(--main-bg)', transition: 'all 0.3s ease' }}>
       {/* ━━ Mobile Header ━━ */}
       <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b-2 flex-shrink-0 z-40 sticky top-0 shadow-sm"
         style={{ backgroundColor: 'var(--sidebar-bg)', borderColor: 'var(--sidebar-border)' }}>
@@ -1508,10 +1512,10 @@ function App() { // Stores
             Desktop: always visible, w-56
             Mobile: slide-out drawer (fixed, overlays content) */}
         <aside className={`
-      w-64 flex-shrink-0 border-r-2 z-[80]
+      ${sidebarOpen ? 'w-64' : 'w-0'} flex-shrink-0 border-r-2 z-[80]
           fixed lg:sticky lg:top-0 left-0 h-full lg:h-screen
-          transform transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          transform transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 overflow-hidden'}
       `} style={{ backgroundColor: 'var(--sidebar-bg)', color: 'var(--sidebar-text)', borderColor: 'var(--sidebar-border)' }}>
           <div className="h-full flex flex-col overflow-hidden">
             <div className="px-4 pt-4 pb-4 space-y-3">
@@ -1861,7 +1865,25 @@ function App() { // Stores
         {/* ━━ Main Content Area ━━ */}
         <main className={`flex-1 flex flex-col h-full overflow-y-auto ${mobileView !== 'form' ? 'hidden lg:flex' : 'flex'}`}
           style={{ backgroundColor: 'var(--main-bg)', color: 'var(--main-text)' }}>
-          <div className="w-full px-2 py-3 sm:p-4 lg:p-6">
+          {/* Desktop Toggles */}
+          <div className="hidden lg:flex items-center justify-between px-6 py-2 sticky top-0 z-50 backdrop-blur-md border-b"
+            style={{ backgroundColor: 'var(--main-bg)', borderColor: 'var(--card-border)' }}>
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-black/5 rounded transition-colors" title="Toggle Sidebar">
+              {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
+            </button>
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Editor Focus</span>
+              <button
+                onClick={() => setMobileView(mobileView === 'preview' ? 'form' : 'preview')}
+                className="p-1.5 hover:bg-black/5 rounded transition-colors"
+                title="Toggle Preview Focus"
+              >
+                {mobileView === 'preview' ? <Maximize2 size={18} /> : <Minimize2 size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="w-full max-w-4xl mx-auto px-2 py-3 sm:p-4 lg:p-8">
             {continuousMode ? (
               renderContinuousMode()
             ) : (
@@ -2247,8 +2269,8 @@ function App() { // Stores
 
         {/* ━━ PDF Preview Panel ━━ */}
         <aside className={`
-          flex-shrink-0
-          w-full lg:w-[900px] md:w-[450px]
+          flex-shrink-0 transition-all duration-300
+          ${mobileView === 'preview' ? 'w-full 2xl:w-[1100px] xl:w-[900px] lg:w-[70%]' : 'w-full 2xl:w-[900px] xl:w-[800px] lg:w-[45%] md:w-[450px]'}
           ${mobileView !== 'preview' ? 'hidden lg:block md:block' : ''}
           `} style={{ backgroundColor: 'var(--card-bg)' }}>
           <div className="sticky top-0 h-screen">

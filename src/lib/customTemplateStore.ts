@@ -53,7 +53,7 @@ export const useCustomTemplateStore = create<CustomTemplateStore>()(
             },
         }),
         {
-            name: 'resume-builder-custom-templates',
+            name: 'cvstack-custom-templates',
         },
     ),
 );

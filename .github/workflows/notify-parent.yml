@@ -1,7 +1,7 @@
-name: Notify Job-Builder
+name: Notify Jobmint
 
-# Fires whenever resume-builder pushes to main.
-# Sends a repository_dispatch event to job-builder which triggers
+# Fires whenever cvstack pushes to main.
+# Sends a repository_dispatch event to jobmint which triggers
 # its sync-subrepo.yml workflow to pull the latest submodule,
 # build, and auto-commit the updated pointer.
 
@@ -13,9 +13,9 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch to job-builder
+      - name: Dispatch to jobmint
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.PARENT_REPO_TOKEN }}
-          repository: ayehya2/job-builder
-          event-type: resume-builder-updated
+          repository: ayehya2/jobmint
+          event-type: cvstack-updated
