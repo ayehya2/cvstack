@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useCoverLetterStore } from '../../lib/coverLetterStore';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { useResumeStore } from '../../store';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Mail } from 'lucide-react';
 import { SmartDateInput } from './SmartDateInput';
 import { RichTextEditor } from './RichTextEditor';
 
@@ -19,8 +19,9 @@ export function CoverLetterForm() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Cover Letter</h3>
+            <div className="flex items-center gap-2.5">
+                <Mail size={20} className="text-slate-400" />
+                <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">Cover Letter</h3>
             </div>
 
             {/* Date */}

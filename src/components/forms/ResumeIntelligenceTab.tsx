@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import {
   CheckCircle2, AlertTriangle, Info, XCircle,
   Plus, TrendingUp, Zap, ChevronDown, ChevronRight,
-  Sparkles, ThumbsUp, ThumbsDown, Star, Loader2
+  Sparkles, ThumbsUp, ThumbsDown, Star, Loader2, BrainCircuit
 } from 'lucide-react';
 import { useResumeStore } from '../../store';
 import { useJobStore } from '../../lib/jobStore';
@@ -212,6 +212,12 @@ export function ResumeIntelligenceTab() {
 
   return (
     <div className="space-y-4 pb-8">
+
+      {/* ━━ SECTION HEADER ━━ */}
+      <div className="flex items-center gap-2.5 mb-4">
+        <BrainCircuit size={20} className="text-slate-400" />
+        <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">Resume Intelligence</h3>
+      </div>
 
       {/* ━━ DUAL SCORE HEADER — Always visible ━━ */}
       <div className="border-2 overflow-hidden shadow-sm relative" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>

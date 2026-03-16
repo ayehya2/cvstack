@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { SlidersHorizontal } from 'lucide-react';
 import { useResumeStore } from '../../store'
 import { useCustomTemplateStore } from '../../lib/customTemplateStore';
 import { isCustomTemplate } from '../../lib/templateResolver';
@@ -61,12 +62,15 @@ export function FormattingForm({
                 </div>
             )}
 
-            <header className="space-y-1">
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">{title}</h3>
+            <div className="space-y-1">
+                <div className="flex items-center gap-2.5">
+                    <SlidersHorizontal size={20} className="text-slate-400" />
+                    <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">{title}</h3>
+                </div>
                 <p className="text-[10px] sm:text-sm text-slate-500 dark:text-slate-400 font-medium italic">
                     {description}
                 </p>
-            </header>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Section 1: Typography */}

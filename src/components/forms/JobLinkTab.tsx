@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Check, Zap, Link as LinkIcon, AlertCircle, Trash2 } from 'lucide-react';
+import { Search, Check, Zap, Link as LinkIcon, AlertCircle, Trash2, Target } from 'lucide-react';
 import { useJobStore } from '../../lib/jobStore';
 
 interface ParentApplication {
@@ -41,6 +41,12 @@ export const JobLinkTab: React.FC<JobLinkTabProps> = ({
 
     return (
         <div className="space-y-4">
+            {/* Section Header */}
+            <div className="flex items-center gap-2.5 mb-2">
+                <Target size={20} className="text-slate-400" />
+                <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">Job Context</h3>
+            </div>
+
             {/* Header — compact row with tab toggle + auto-sync */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b-2 border-slate-100 dark:border-slate-800">
                 <div className="flex p-1 bg-slate-100 dark:bg-slate-800/50">

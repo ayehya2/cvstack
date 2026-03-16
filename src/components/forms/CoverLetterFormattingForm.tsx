@@ -1,3 +1,4 @@
+import { FileType } from 'lucide-react';
 import type { FormattingOptions, ColorTheme, Alignment, FontFamily, NameSize, Spacing, BodyTextWeight } from '../../types';
 
 interface CoverLetterFormattingFormProps {
@@ -14,12 +15,15 @@ export function CoverLetterFormattingForm({
 
     return (
         <div className="space-y-6">
-            <header className="space-y-1">
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">Cover Letter Formatting</h3>
+            <div className="space-y-1">
+                <div className="flex items-center gap-2.5">
+                    <FileType size={20} className="text-slate-400" />
+                    <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">Cover Letter Formatting</h3>
+                </div>
                 <p className="text-[10px] sm:text-sm text-slate-500 dark:text-slate-400 font-medium italic">
                     Simplified formatting for clean, professional business letters.
                 </p>
-            </header>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Section 1: Typography */}

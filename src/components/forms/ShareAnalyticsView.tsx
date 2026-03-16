@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useResumeStore } from '../../store';
 import { buildShareUrl } from '../../lib/shareUtils';
-import { Link2, Copy, Check, BarChart3, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Link2, Copy, Check, BarChart3, RefreshCw, AlertTriangle, Share2 } from 'lucide-react';
 
 export function ShareAnalyticsView() {
     const resumeData = useResumeStore(state => state.resumeData);
@@ -48,10 +48,10 @@ export function ShareAnalyticsView() {
         <div className="space-y-8">
             {/* ── Share Section ── */}
             <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4 border-b pb-2 border-slate-50 dark:border-slate-800">
-                    <Link2 size={16} style={{ color: 'var(--accent)' }} />
-                    <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--main-text)' }}>
-                        Share Resume
+                <div className="flex items-center gap-2.5 mb-4">
+                    <Share2 size={20} className="text-slate-400" />
+                    <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">
+                        Analytics & Sharing
                     </h3>
                 </div>
 
@@ -137,9 +137,9 @@ export function ShareAnalyticsView() {
 
             {/* ── Analytics Section (Placeholder) ── */}
             <div className="border-t-2 pt-8 border-slate-100 dark:border-slate-800/50">
-                <div className="flex items-center gap-2 mb-4">
-                    <BarChart3 size={16} style={{ color: 'var(--main-text-secondary)' }} />
-                    <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--main-text)' }}>
+                <div className="flex items-center gap-2.5 mb-4">
+                    <BarChart3 size={20} className="text-slate-400" />
+                    <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">
                         Analytics
                     </h3>
                 </div>

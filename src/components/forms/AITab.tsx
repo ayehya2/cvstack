@@ -281,12 +281,12 @@ export function AITab() {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                    <Sparkles size={20} />
-                    AI Content Suggestions
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
+            <div className="space-y-1">
+                <div className="flex items-center gap-2.5">
+                    <Sparkles size={20} className="text-slate-400" />
+                    <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">AI Content Suggestions</h3>
+                </div>
+                <p className="text-[10px] sm:text-sm text-slate-500 dark:text-slate-400 font-medium italic">
                     Automatically improve your resume and cover letter with action-verb-led, quantified rewrites powered by Google Gemini.
                 </p>
             </div>

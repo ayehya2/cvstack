@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useModal } from '../ThemedModal';
-import { Upload, FolderOpen, Linkedin, Check, AlertTriangle, FileText, X } from 'lucide-react';
+import { Upload, FolderOpen, Linkedin, Check, AlertTriangle, FileText, X, FileDown } from 'lucide-react';
 import { useResumeStore } from '../../store';
 import { parseResumeFile } from '../../lib/resumeParser';
 import { importFromJSON } from '../../lib/storage';
@@ -134,6 +134,12 @@ export const ImportTab: React.FC<ImportTabProps> = ({
 
     return (
         <div className="space-y-6">
+            {/* Section Header */}
+            <div className="flex items-center gap-2.5">
+                <FileDown size={20} className="text-slate-400" />
+                <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">Import & Documents</h3>
+            </div>
+
             {/* Primary Actions Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Upload Zone - Merged File & LinkedIn PDF */}

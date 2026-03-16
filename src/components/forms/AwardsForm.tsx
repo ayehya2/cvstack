@@ -2,7 +2,7 @@ import { useResumeStore } from '../../store'
 import { SmartDateInput } from './SmartDateInput';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { useEffect } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Trophy } from 'lucide-react';
 import { RichTextEditor } from './RichTextEditor';
 
 export function AwardsForm() {
@@ -19,8 +19,11 @@ export function AwardsForm() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-900/40 p-3 border-2 border-slate-200 dark:border-slate-700/50">
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">Awards</h3>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                    <Trophy size={20} className="text-slate-400" />
+                    <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">Awards</h3>
+                </div>
                 <button
                     onClick={addAward}
                     className="btn-add px-3 py-1.5 flex items-center gap-1.5 text-[10px]"

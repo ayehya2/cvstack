@@ -1,7 +1,7 @@
 import { useResumeStore } from '../../store'
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { useEffect } from 'react'
-import { Trash2, Plus } from 'lucide-react'
+import { Trash2, Plus, ExternalLink, User } from 'lucide-react'
 import { RichTextEditor } from './RichTextEditor';
 
 export function BasicsForm() {
@@ -28,9 +28,10 @@ export function BasicsForm() {
 
     return (
         <div className="space-y-6">
-            <header className="space-y-0.5">
-                <h3 className="text-lg font-black uppercase tracking-widest text-slate-800 dark:text-white">Profile Information</h3>
-            </header>
+            <div className="flex items-center gap-2.5">
+                <User size={20} className="text-slate-400" />
+                <h3 className="text-base font-black uppercase tracking-[0.12em] text-slate-800 dark:text-white">Profile Information</h3>
+            </div>
 
             <div className="bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 p-3 sm:p-5 space-y-4 shadow-sm">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -105,53 +106,51 @@ export function BasicsForm() {
                         </button>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
                         {basics.websites.map((site, index) => (
-                            <div key={index} className="flex gap-3 items-end group">
-                                <div className="flex-1">
-                                    <label className="form-label">Site Name</label>
+                            <div key={index} className="flex gap-2 items-center py-2 first:pt-0 last:pb-0">
+                                <div style={{ width: '140px', minWidth: '140px' }}>
                                     <input
                                         type="text"
                                         value={site.name}
                                         onChange={(e) => updateWebsite(index, 'name', e.target.value)}
                                         className="form-input"
-                                        placeholder="LinkedIn"
+                                        placeholder="Site name"
                                     />
                                 </div>
-                                <div className="flex-[2]">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <label className="form-label !mb-0">URL</label>
-                                        {site.url && (
-                                            <a
-                                                href={site.url.startsWith('http') ? site.url : `https://${site.url}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-[9px] font-bold uppercase tracking-wider text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors flex items-center gap-1"
-                                            >
-                                                Open ↗
-                                            </a>
-                                        )}
-                                    </div>
+                                <div className="flex-1 relative min-w-0">
                                     <input
                                         type="url"
                                         value={site.url}
                                         onChange={(e) => updateWebsite(index, 'url', e.target.value)}
-                                        className="form-input"
-                                        placeholder="https://linkedin.com/in/..."
+                                        className="form-input pr-8"
+                                        placeholder="https://..."
                                     />
+                                    {site.url && (
+                                        <a
+                                            href={site.url.startsWith('http') ? site.url : `https://${site.url}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors cursor-pointer"
+                                            title="Open link"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <ExternalLink size={13} />
+                                        </a>
+                                    )}
                                 </div>
                                 <button
                                     onClick={() => removeWebsite(index)}
-                                    className="btn-remove w-9 h-[32px] sm:h-[34px] flex-shrink-0 flex items-center justify-center"
-                                    title="Remove Link"
+                                    className="btn-remove w-8 h-[32px] sm:h-[34px] flex-shrink-0 flex items-center justify-center"
+                                    title="Remove"
                                 >
-                                    <Trash2 size={14} strokeWidth={3} />
+                                    <Trash2 size={13} strokeWidth={2.5} />
                                 </button>
                             </div>
                         ))}
 
                         {basics.websites.length === 0 && (
-                            <p className="text-xs text-slate-500 dark:text-slate-600 italic">No websites added. Add links to your LinkedIn, Portfolios, or Personal Sites.</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-600 italic py-2">No websites added. Add links to your LinkedIn, Portfolios, or Personal Sites.</p>
                         )}
                     </div>
                 </div>
