@@ -1,5 +1,5 @@
 import { useResumeStore } from '../../store'
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { Plus, X } from 'lucide-react';
 import { RichTextEditor } from './RichTextEditor';
