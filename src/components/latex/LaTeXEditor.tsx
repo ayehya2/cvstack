@@ -12,10 +12,10 @@
 
 import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { useResumeStore } from '../../store';
-import { generateLaTeXFromData } from '../../lib/latexGenerator';
-import { getEffectiveResumeData } from '../../lib/templateResolver';
-import { useCustomTemplateStore } from '../../lib/customTemplateStore';
-import { useModal } from '../ThemedModal';
+import { generateLaTeXFromData } from '../../lib/latex/latexGenerator';
+import { getEffectiveResumeData } from '../../lib/utils/templateResolver';
+import { useCustomTemplateStore } from '../../lib/stores/customTemplateStore';
+import { useModal } from '../common/ThemedModal';
 import { Download, Copy, RotateCcw } from 'lucide-react';
 
 // Lazy-load Monaco Editor — it's large (~2MB) and only needed in Advanced Mode

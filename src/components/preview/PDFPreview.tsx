@@ -3,19 +3,19 @@ import { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import equal from 'fast-deep-equal';
 import { useResumeStore } from '../../store';
-import { useCoverLetterStore } from '../../lib/coverLetterStore';
-import { useCustomTemplateStore } from '../../lib/customTemplateStore';
-import { getEffectiveResumeData } from '../../lib/templateResolver';
-import { getPDFTemplateComponent, isLatexTemplate } from '../../lib/pdfTemplateMap';
-import { generateLaTeXFromData, generateLaTeXCoverLetter } from '../../lib/latexGenerator';
-import { compileLatexViaApi } from '../../lib/latexApiCompiler';
+import { useCoverLetterStore } from '../../lib/stores/coverLetterStore';
+import { useCustomTemplateStore } from '../../lib/stores/customTemplateStore';
+import { getEffectiveResumeData } from '../../lib/utils/templateResolver';
+import { getPDFTemplateComponent, isLatexTemplate } from '../../lib/pdf/pdfTemplateMap';
+import { generateLaTeXFromData, generateLaTeXCoverLetter } from '../../lib/latex/latexGenerator';
+import { compileLatexViaApi } from '../../lib/latex/latexApiCompiler';
 import type { TemplateId, DocumentType } from '../../types';
-import { generateDocumentTitle, generateDocumentFileName } from '../../lib/documentNaming';
+import { generateDocumentTitle, generateDocumentFileName } from '../../lib/utils/documentNaming';
 import {
     Download, Printer, ZoomIn, ZoomOut, Maximize,
     ChevronLeft, ChevronRight, Info, PanelLeft, X, Code2, FileJson
 } from 'lucide-react';
-import { exportToContentJSON } from '../../lib/storage';
+import { exportToContentJSON } from '../../lib/data/storage';
 
 /* ──────────────────────────────────────
    Helpers

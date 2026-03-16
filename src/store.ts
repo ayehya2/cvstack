@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ResumeData, TemplateId, Basics, WorkExperience, Education, Skill, Project, Award, SectionKey, LaTeXFormattingOptions } from './types';
-import { SAMPLE_RESUME_DATA } from './lib/sampleData';
+import { SAMPLE_RESUME_DATA } from './lib/data/sampleData';
 
 // Default formatting options
 export const getDefaultFormatting = (): import('./types').FormattingOptions => ({
