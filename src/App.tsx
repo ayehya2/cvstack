@@ -1268,10 +1268,6 @@ function App() { // Stores
       // Share & Analytics (End of Resume Section)
       sections.push(
         <div key="share-analytics" id="continuous-section-share-analytics" className={dividerClass}>
-          <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
-            <Share2 size={14} className="opacity-70" />
-            <span>Analytics & Sharing</span>
-          </div>
           <ShareAnalyticsView />
         </div>
       );
@@ -1369,10 +1365,6 @@ function App() { // Stores
     // Job Link & Description
     sections.push(
       <div key="job-link" id="continuous-section-job-link" className={dividerClass}>
-        <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
-          <Briefcase size={14} className="opacity-70" />
-          <span>Job Context</span>
-        </div>
         <JobLinkTab
           parentApplications={parentApplications}
           onLinkJob={(id) => window.parent.postMessage({ type: 'LINK_PARENT_JOB', id }, '*')}
@@ -1383,10 +1375,6 @@ function App() { // Stores
     // Import Tool
     sections.push(
       <div key="import-tool" id="continuous-section-import-tool" className={dividerClass}>
-        <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
-          <Upload size={14} className="opacity-70" />
-          <span>Import & Documents</span>
-        </div>
         <ImportTab
           parentDocuments={parentDocuments}
           onLoadParentDoc={(id) => window.parent.postMessage({ type: 'LOAD_PARENT_DOCUMENT', id }, '*')}
@@ -1397,10 +1385,6 @@ function App() { // Stores
     // Resume Intelligence
     sections.push(
       <div key="ats-score" id="continuous-section-ats-score" className={dividerClass}>
-        <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
-          <Sparkles size={14} className="opacity-70" />
-          <span>Resume Intelligence</span>
-        </div>
         <ResumeIntelligenceTab />
       </div>
     );
@@ -1408,10 +1392,6 @@ function App() { // Stores
     // AI Content Suggestions
     sections.push(
       <div key="ai" id="continuous-section-ai" className={dividerClass}>
-        <div className="flex items-center gap-2 px-1 py-4 mb-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b-2 border-slate-100 dark:border-slate-800/50 mt-12">
-          <Zap size={14} className="opacity-70" />
-          <span>AI Content Suggestions</span>
-        </div>
         <AITab />
       </div>
     );

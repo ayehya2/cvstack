@@ -85,46 +85,52 @@ export function SkillsForm() {
                             </button>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Skills</label>
-                            <div className="flex flex-wrap gap-2 mb-3">
-                                {skill.items.map((item, itemIndex) => (
-                                    <span
-                                        key={itemIndex}
-                                        className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm font-bold border border-slate-200 dark:border-slate-700 shadow-sm"
-                                    >
-                                        <span dangerouslySetInnerHTML={{ __html: item }} />
-                                        <button
-                                            onClick={() => removeSkillItem(index, itemIndex)}
-                                            className="text-red-400 hover:text-red-600 dark:hover:text-red-500 transition-colors"
-                                        >
-                                            <Trash2 size={12} strokeWidth={3} />
-                                        </button>
-                                    </span>
-                                ))}
-                            </div>
-
-                            <div className="flex gap-2 items-end">
-                                <div className="flex-1">
+                        <div className="space-y-3">
+                            {/* Top row: Label + Input + Add Button */}
+                            <div className="flex items-center gap-3">
+                                <label className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                                    Skills
+                                </label>
+                                <div className="flex-1 border-2 border-transparent focus-within:border-blue-500/50 transition-colors bg-white dark:bg-slate-950">
                                     <RichTextEditor
                                         value={newSkillHtml[index] || ''}
                                         onChange={(html) =>
                                             setNewSkillHtml({ ...newSkillHtml, [index]: html })
                                         }
                                         singleLine={true}
-                                        placeholder="Type a skill..."
-                                        className=""
+                                        placeholder="Add a skill..."
                                         onEnter={() => addSkillItem(index)}
                                     />
                                 </div>
                                 <button
                                     onClick={() => addSkillItem(index)}
-                                    className="px-6 h-[32px] sm:h-[34px] btn-add flex items-center gap-2 transition-all active:scale-95 shadow-md"
+                                    className="px-6 h-[32px] sm:h-[34px] btn-add flex items-center gap-2 transition-all active:scale-95 shadow-md flex-shrink-0"
                                 >
                                     <Plus size={14} strokeWidth={3} />
-                                    Add
+                                    ADD
                                 </button>
                             </div>
+
+                            {/* Bottom row: Chips */}
+                            {skill.items.length > 0 && (
+                                <div className="flex flex-wrap gap-2 pt-1">
+                                    {skill.items.map((item, itemIndex) => (
+                                        <span
+                                            key={itemIndex}
+                                            className="inline-flex items-center gap-2.5 px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-sm"
+                                        >
+                                            <span dangerouslySetInnerHTML={{ __html: item }} className="leading-none mt-0.5" />
+                                            <button
+                                                onClick={() => removeSkillItem(index, itemIndex)}
+                                                className="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-500 transition-colors"
+                                                title="Remove skill"
+                                            >
+                                                <Trash2 size={12} strokeWidth={3} />
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}
