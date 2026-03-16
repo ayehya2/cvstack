@@ -2203,7 +2203,7 @@ function App() { // Stores
         {/* ━━ PDF Preview Panel ━━ */}
         <aside className={`
           flex-shrink-0 transition-all duration-300
-          ${mobileView === 'preview' ? 'w-full 2xl:w-[1100px] xl:w-[900px] lg:w-[70%]' : 'w-full 2xl:w-[900px] xl:w-[700px] lg:w-[38%] md:w-[350px]'}
+          ${mobileView === 'preview' ? 'w-full 2xl:w-[1100px] xl:w-[900px] lg:w-[70%]' : 'w-full 2xl:w-[800px] xl:w-[550px] lg:w-[40%] md:w-[350px]'}
           ${mobileView !== 'preview' ? 'hidden lg:block md:block' : ''}
           `} style={{ backgroundColor: 'var(--card-bg)' }}>
           <div className="sticky top-0 h-screen">
