@@ -246,7 +246,7 @@ function App() { // Stores
   const [isImporting, setIsImporting] = useState(false);
 
   // UI State
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [readOnlyMode, setReadOnlyMode] = useState(false);
   const [isAdvancedMode, setIsAdvancedMode] = useState(false);
   const [mobileView, setMobileView] = useState<'form' | 'preview'>('form');
@@ -306,7 +306,10 @@ function App() { // Stores
     } else {
       setActiveTab(tabKey);
     }
-    setSidebarOpen(false); // close mobile sidebar on navigation
+    // Only close mobile sidebar on navigation; keep it open on desktop
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   };
 
   // Track which section is visible when scrolling in continuous mode
