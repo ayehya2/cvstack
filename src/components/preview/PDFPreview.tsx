@@ -12,8 +12,9 @@ import { compileLatexViaApi } from '../../lib/latex/latexApiCompiler';
 import type { TemplateId, DocumentType } from '../../types';
 import { generateDocumentTitle, generateDocumentFileName } from '../../lib/utils/documentNaming';
 import {
-    Download, Printer, ZoomIn, ZoomOut, Maximize,
-    ChevronLeft, ChevronRight, Info, PanelLeft, X, Code2, FileJson
+    Download, Printer, ZoomIn, ZoomOut, Maximize, MoveHorizontal,
+    ChevronLeft, ChevronRight, Info, PanelLeft, X, Code2, FileJson,
+    CircleDot, Clock, RefreshCw
 } from 'lucide-react';
 import { exportToContentJSON } from '../../lib/data/storage';
 
@@ -24,6 +25,9 @@ import { exportToContentJSON } from '../../lib/data/storage';
 interface PDFPreviewProps {
     templateId: TemplateId;
     documentType: DocumentType;
+    showResume?: boolean;
+    showCoverLetter?: boolean;
+    onDocumentTypeChange?: (type: DocumentType) => void;
 }
 
 async function getPdfjsLib() {
@@ -57,7 +61,7 @@ async function getPdfjsLib() {
    Our zoom buttons reload the iframe with #zoom=X.
    ────────────────────────────────────── */
 
-export const PDFPreview = memo(function PDFPreview({ templateId, documentType }: PDFPreviewProps) {
+export const PDFPreview = memo(function PDFPreview({ templateId, documentType, showResume, showCoverLetter, onDocumentTypeChange }: PDFPreviewProps) {
     const { resumeData, customLatexSource, latexFormatting } = useResumeStore();
     const { coverLetterData } = useCoverLetterStore();
     const { customTemplates } = useCustomTemplateStore();
@@ -69,6 +73,7 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
     const [error, setError] = useState<string | null>(null);
     const previousDataRef = useRef<unknown>(null);
     const generationRef = useRef(0);
+    const previousManualRefreshRef = useRef(0);
 
     // Viewer state — zoom=0 means "fit to width"
     const [zoom, setZoom] = useState(0);
@@ -78,6 +83,8 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
     // UI panels
     const [showThumbnails, setShowThumbnails] = useState(false);
     const [showProperties, setShowProperties] = useState(false);
+    const [isLiveMode, setIsLiveMode] = useState(true);
+    const [manualRefreshTrigger, setManualRefreshTrigger] = useState(0);
     const [pdfMetadata, setPdfMetadata] = useState<Record<string, string>>({});
     const [thumbnails, setThumbnails] = useState<string[]>([]);
 
@@ -105,10 +112,17 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
             basics: documentType === 'coverletter' ? resumeData.basics : null,
         };
 
-        if (previousDataRef.current && equal(currentState, previousDataRef.current) && pdfBlob) return;
-        const gen = ++generationRef.current;
+        const isManualRefresh = manualRefreshTrigger > previousManualRefreshRef.current;
+        if (isManualRefresh) {
+            previousManualRefreshRef.current = manualRefreshTrigger;
+        }
 
-        (async () => {
+        if (!isManualRefresh && previousDataRef.current && equal(currentState, previousDataRef.current) && pdfBlob) return;
+        
+        let timeoutId: ReturnType<typeof setTimeout>;
+
+        const generatePDF = async () => {
+            const gen = ++generationRef.current;
             setIsGenerating(true);
             setError(null);
             try {
@@ -138,9 +152,21 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
             } finally {
                 if (gen === generationRef.current) setIsGenerating(false);
             }
-        })();
+        };
+
+        if (isLiveMode || isManualRefresh) {
+            generatePDF();
+        } else {
+            timeoutId = setTimeout(() => {
+                generatePDF();
+            }, 30000);
+        }
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [resumeData, templateId, documentType, coverLetterData, customLatexSource, customTemplates, latexFormatting]);
+    }, [resumeData, templateId, documentType, coverLetterData, customLatexSource, customTemplates, latexFormatting, isLiveMode, manualRefreshTrigger]);
 
     /* ── Create / revoke blob URL ── */
     useEffect(() => {
@@ -233,8 +259,9 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
             return Math.max(cur - 25, 25);
         });
     }, []);
-    const handleFitToWidth = useCallback(() => setZoom(0), []);
-    const handleFitToPage = useCallback(() => setZoom(-1), []);
+    const handleFitToggle = useCallback(() => {
+        setZoom(z => z === 0 ? -1 : 0);
+    }, []);
 
     /* ── Page nav ── */
     const goToPage = useCallback((p: number) => {
@@ -352,17 +379,41 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
                     {totalPages > 0 && (
                         <div className="flex items-center gap-0.5 flex-shrink-0">
                             <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage <= 1}
-                                className="p-1 border transition-colors disabled:opacity-30" style={btn}>
+                                className="p-1 border transition-colors disabled:opacity-30" style={btn} title="Previous Page">
                                 <ChevronLeft size={14} />
                             </button>
-                            <span className="text-[11px] font-bold px-1 tabular-nums" style={txt}>
+                            <span className="text-[11px] font-bold px-1 tabular-nums" style={txt} title="Current Page">
                                 {currentPage}/{totalPages}
                             </span>
                             <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPages}
-                                className="p-1 border transition-colors disabled:opacity-30" style={btn}>
+                                className="p-1 border transition-colors disabled:opacity-30" style={btn} title="Next Page">
                                 <ChevronRight size={14} />
                             </button>
                         </div>
+                    )}
+
+                    {showResume && showCoverLetter && onDocumentTypeChange && (
+                        <>
+                            <div className="w-px h-4 mx-2" style={{ backgroundColor: 'var(--card-border)' }} />
+                            <div className="flex items-center rounded-md p-0.5" style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', height: '28px', minWidth: 'unspecified' }}>
+                                <button
+                                    onClick={() => onDocumentTypeChange('resume')}
+                                    className="flex items-center justify-center text-[10px] uppercase tracking-wider font-bold rounded transition-colors h-full px-2 leading-none w-[70px]"
+                                    style={documentType === 'resume' ? { backgroundColor: '#1e293b', color: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' } : { color: '#94a3b8', backgroundColor: 'transparent' }}
+                                    title="View Resume Preview"
+                                >
+                                    Resume
+                                </button>
+                                <button
+                                    onClick={() => onDocumentTypeChange('coverletter')}
+                                    className="flex items-center justify-center text-[9px] uppercase tracking-wider font-bold rounded transition-colors h-full px-1.5 leading-[1.05] w-[70px]"
+                                    style={documentType === 'coverletter' ? { backgroundColor: '#1e293b', color: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' } : { color: '#94a3b8', backgroundColor: 'transparent' }}
+                                    title="View Cover Letter Preview"
+                                >
+                                    <span className="text-center">Cover<br />Letter</span>
+                                </button>
+                            </div>
+                        </>
                     )}
                 </div>
 
@@ -377,18 +428,52 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
                     <button onClick={handleZoomIn} className="p-2 sm:p-1.5 border transition-colors" style={btn} title="Zoom In">
                         <ZoomIn size={16} />
                     </button>
-                    <button onClick={handleFitToPage} className="p-2 sm:p-1.5 border transition-colors"
-                        style={zoom === -1 ? btnOn : btn} title="Fit to Page">
-                        <Maximize size={16} className="rotate-45 scale-75" />
-                    </button>
-                    <button onClick={handleFitToWidth} className="p-2 sm:p-1.5 border transition-colors"
-                        style={zoom === 0 ? btnOn : btn} title="Fit to Width">
-                        <Maximize size={16} />
+                    <button onClick={handleFitToggle} className="p-2 sm:p-1.5 border transition-colors"
+                        style={(zoom === 0 || zoom === -1) ? btnOn : btn}
+                        title={zoom === 0 ? "Switch to Fit Page" : "Switch to Fit Width"}>
+                        {zoom === 0 ? (
+                            <MoveHorizontal size={16} />
+                        ) : (
+                            <Maximize size={16} className={zoom === -1 ? "text-green-500" : ""} />
+                        )}
                     </button>
                 </div>
 
-                {/* Right: thumbnails, properties, print, download */}
+                {/* Right: auto-refresh toggle, refresh btn, thumbnails, properties, print, download */}
                 <div className="flex items-center gap-1 flex-1 justify-end">
+                    {/* Live / 30s Toggle & Refresh (Visible on larger screens) */}
+                    <div className="hidden lg:flex items-center mr-1 gap-1.5">
+                        <div className="flex items-center rounded-md p-0.5" style={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', height: '28px' }}>
+                            <button
+                                onClick={() => setIsLiveMode(true)}
+                                className="flex items-center justify-center gap-1.5 px-2.5 h-full text-[10px] uppercase tracking-wider font-bold rounded transition-colors w-[60px]"
+                                style={isLiveMode ? { backgroundColor: '#1e293b', color: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' } : { color: '#94a3b8', backgroundColor: 'transparent' }}
+                                title="Live Preview (Updates immediately as you carefully type)"
+                            >
+                                <CircleDot size={12} className={isLiveMode ? "text-blue-400" : ""} />
+                                <span>Live</span>
+                            </button>
+                            <button
+                                onClick={() => setIsLiveMode(false)}
+                                className="flex items-center justify-center gap-1.5 px-2.5 h-full text-[10px] uppercase tracking-wider font-bold rounded transition-colors w-[60px]"
+                                style={!isLiveMode ? { backgroundColor: '#1e293b', color: '#f8fafc', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' } : { color: '#94a3b8', backgroundColor: 'transparent' }}
+                                title="Delayed Preview (Refreshes PDF 30 seconds after typing stops to save battery)"
+                            >
+                                <Clock size={12} className={!isLiveMode ? "text-orange-400" : ""} />
+                                <span>30s</span>
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => setManualRefreshTrigger(t => t + 1)}
+                            className="flex items-center justify-center p-1.5 border transition-colors active:scale-95"
+                            style={btn}
+                            title="Force Refresh Preview PDF Now"
+                        >
+                            <RefreshCw size={16} className={isGenerating ? "animate-spin text-blue-400" : ""} />
+                        </button>
+                        <div className="w-px h-5 mx-1" style={{ backgroundColor: 'var(--card-border)' }} />
+                    </div>
+
                     <button onClick={() => setShowThumbnails(v => !v)} className="p-2 sm:p-1.5 border transition-colors"
                         style={showThumbnails ? btnOn : btn} title="Thumbnails">
                         <PanelLeft size={16} strokeWidth={showThumbnails ? 3 : 2} />

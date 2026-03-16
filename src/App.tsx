@@ -2210,6 +2210,9 @@ function App() { // Stores
             <PDFPreview
               templateId={documentType === 'coverletter' ? coverLetterData.selectedTemplate : resumeData.selectedTemplate}
               documentType={documentType}
+              showResume={showResume}
+              showCoverLetter={showCoverLetter}
+              onDocumentTypeChange={setDocumentType}
             />
           </div>
         </aside>
