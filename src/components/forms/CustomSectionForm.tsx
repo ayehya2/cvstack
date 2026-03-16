@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { Plus, ExternalLink } from 'lucide-react';
 import type { CustomSection, CustomSectionEntry } from '../../types';
 import { SmartDateInput } from './SmartDateInput';
+import { RichTextEditor } from './RichTextEditor';
 
 interface CustomSectionFormProps {
     sectionId?: string;
@@ -145,6 +146,8 @@ export function CustomSectionForm({ sectionId }: CustomSectionFormProps) {
                                             value={item.date}
                                             onChange={(val) => updateCustomSectionItem(section.id, index, { date: val })}
                                             placeholder="Jan 2024"
+                                            showPresent={true}
+                                            showPresentToggle={true}
                                         />
                                     </div>
                                     <div>
@@ -203,12 +206,9 @@ export function CustomSectionForm({ sectionId }: CustomSectionFormProps) {
                                             showAddButton={false}
                                         />
                                     ) : (
-                                        <textarea
+                                        <RichTextEditor
                                             value={item.bullets[0] || ''}
-                                            onChange={(e) => updateCustomSectionItem(section.id, index, { bullets: [e.target.value] })}
-                                            spellCheck={true}
-                                            rows={3}
-                                            className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
+                                            onChange={(html) => updateCustomSectionItem(section.id, index, { bullets: [html] })}
                                             placeholder="Describe your achievements..."
                                         />
                                     )}

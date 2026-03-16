@@ -10,22 +10,19 @@ export function ShareAnalyticsView() {
     const [generating, setGenerating] = useState(false);
     const [urlLength, setUrlLength] = useState(0);
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
         setGenerating(true);
-        // Use setTimeout so the UI shows the generating state
-        setTimeout(() => {
-            try {
-                const url = buildShareUrl(resumeData);
-                setShareUrl(url);
-                setUrlLength(url.length);
-                setCopied(false);
-            } catch (e) {
-                console.error('Failed to generate share link:', e);
-                setShareUrl('');
-            } finally {
-                setGenerating(false);
-            }
-        }, 100);
+        try {
+            const url = await buildShareUrl(resumeData);
+            setShareUrl(url);
+            setUrlLength(url.length);
+            setCopied(false);
+        } catch (e) {
+            console.error('Failed to generate share link:', e);
+            setShareUrl('');
+        } finally {
+            setGenerating(false);
+        }
     };
 
     const handleCopy = async () => {

@@ -2,6 +2,7 @@ import { useResumeStore } from '../../store'
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { useEffect } from 'react'
 import { X, Plus } from 'lucide-react'
+import { RichTextEditor } from './RichTextEditor';
 
 export function BasicsForm() {
     const { resumeData, updateBasics } = useResumeStore();
@@ -85,17 +86,11 @@ export function BasicsForm() {
                     <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
                         Professional Summary <span className="font-normal text-slate-400 dark:text-slate-500">(Optional)</span>
                     </label>
-                    <textarea
-                        value={basics.summary || ""}
-                        onChange={(e) => updateBasics({ summary: e.target.value })}
-                        spellCheck={true}
-                        rows={3}
-                        className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all resize-y"
+                    <RichTextEditor
+                        value={basics.summary || ''}
+                        onChange={(html) => updateBasics({ summary: html })}
                         placeholder="A brief 2-3 sentence summary of your professional background, key skills, and career goals..."
                     />
-                    <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500 italic">
-                        Tip: Use <strong>**bold**</strong> for emphasis and <em>*italic*</em> for titles.
-                    </p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-700">
@@ -135,8 +130,9 @@ export function BasicsForm() {
                                 </div>
                                 <button
                                     onClick={() => removeWebsite(index)}
-                                    className="w-9 h-9 flex-shrink-0 bg-red-500/5 hover:bg-red-500/10 text-red-500/80 hover:text-red-500 border border-red-500/20 transition-all flex items-center justify-center rounded-none active:scale-95"
+                                    className="w-9 flex-shrink-0 bg-red-500/5 hover:bg-red-500/10 text-red-500/80 hover:text-red-500 border border-red-500/20 transition-all flex items-center justify-center rounded-none active:scale-95"
                                     title="Remove Link"
+                                    style={{ height: '42px' }}
                                 >
                                     <X size={16} strokeWidth={3} />
                                 </button>

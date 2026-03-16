@@ -59,6 +59,10 @@ export interface Education {
     graduationDate: string;
     gpa?: string;
     description?: string;
+    thesis?: string;
+    clubs?: Club[];
+    courses?: string[];
+    activities?: ActivitySection[];
 }
 
 export interface Skill {
@@ -81,6 +85,27 @@ export interface Award {
     awarder: string;
     date: string;
     summary?: string;
+}
+
+export interface Club {
+    name: string;
+    role: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    bullets: string[];
+}
+
+export interface Course {
+    name: string;
+    institution: string;
+    date: string;
+    description?: string;
+}
+
+export interface ActivitySection {
+    title: string;
+    items: string[];
 }
 
 // Template Types

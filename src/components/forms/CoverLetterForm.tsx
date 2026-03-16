@@ -4,6 +4,7 @@ import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { useResumeStore } from '../../store';
 import { Sparkles } from 'lucide-react';
 import { SmartDateInput } from './SmartDateInput';
+import { RichTextEditor } from './RichTextEditor';
 
 export function CoverLetterForm() {
     const { coverLetterData, updateRecipient, updatePosition, updateDate, updateContent } = useCoverLetterStore();
@@ -50,7 +51,7 @@ export function CoverLetterForm() {
                         </label>
                         <input
                             type="text"
-                            value={coverLetterData.recipientName}
+                            value={coverLetterData.recipientName || ''}
                             onChange={(e) => updateRecipient({ recipientName: e.target.value })}
                             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
                             placeholder="Jane Smith"
@@ -63,7 +64,7 @@ export function CoverLetterForm() {
                         </label>
                         <input
                             type="text"
-                            value={coverLetterData.recipientTitle}
+                            value={coverLetterData.recipientTitle || ''}
                             onChange={(e) => updateRecipient({ recipientTitle: e.target.value })}
                             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
                             placeholder="Hiring Manager"
@@ -76,7 +77,7 @@ export function CoverLetterForm() {
                         </label>
                         <input
                             type="text"
-                            value={coverLetterData.company}
+                            value={coverLetterData.company || ''}
                             onChange={(e) => updateRecipient({ company: e.target.value })}
                             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
                             placeholder="Acme Corporation"
@@ -89,7 +90,7 @@ export function CoverLetterForm() {
                         </label>
                         <input
                             type="text"
-                            value={coverLetterData.companyAddress}
+                            value={coverLetterData.companyAddress || ''}
                             onChange={(e) => updateRecipient({ companyAddress: e.target.value })}
                             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
                             placeholder="123 Business St, City, State 12345"
@@ -105,7 +106,7 @@ export function CoverLetterForm() {
                 </label>
                 <input
                     type="text"
-                    value={coverLetterData.position}
+                    value={coverLetterData.position || ''}
                     onChange={(e) => updatePosition(e.target.value)}
                     className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all"
                     placeholder="Senior Software Engineer"
@@ -117,12 +118,10 @@ export function CoverLetterForm() {
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Letter Body (Greeting, Content, & Signature)
                 </label>
-                <textarea
+                <RichTextEditor
                     value={coverLetterData.content}
-                    onChange={(e) => updateContent(e.target.value)}
-                    rows={15}
-                    className="w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all resize-vertical leading-relaxed"
-                    placeholder={`Dear Hiring Manager, \n\nI am writing to express my interest...\n\nSincerely, \n\n[Your Name]`}
+                    onChange={(html) => updateContent(html)}
+                    placeholder="Dear Hiring Manager, &#10;&#10;I am writing to express my interest...&#10;&#10;Sincerely, &#10;&#10;[Your Name]"
                 />
             </div>
 

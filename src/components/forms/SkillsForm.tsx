@@ -1,12 +1,13 @@
 import { useResumeStore } from '../../store'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { Plus, X } from 'lucide-react';
+import { RichTextEditor } from './RichTextEditor';
 
 export function SkillsForm() {
     const { resumeData, addSkill, updateSkill, removeSkill } = useResumeStore();
     const { skills } = resumeData;
-    const [newSkillInput, setNewSkillInput] = useState<{ [key: number]: string }>({});
+    const [newSkillHtml, setNewSkillHtml] = useState<{ [key: number]: string }>({});
     const checkContent = useProofreadingStore(state => state.checkContent);
 
     // Monitor skills content
@@ -19,11 +20,17 @@ export function SkillsForm() {
 
     const addSkillItem = (index: number) => {
         const skill = skills[index];
-        const newItem = newSkillInput[index]?.trim();
+        const rawHtml = newSkillHtml[index]?.trim();
 
-        if (newItem) {
-            updateSkill(index, { items: [...skill.items, newItem] });
-            setNewSkillInput({ ...newSkillInput, [index]: '' });
+        // Strip outer <p> tags that TipTap wraps content in
+        const cleaned = rawHtml
+            ?.replace(/^<p>/, '')
+            .replace(/<\/p>$/, '')
+            .trim();
+
+        if (cleaned && cleaned !== '<br>' && cleaned !== '<br/>') {
+            updateSkill(index, { items: [...skill.items, cleaned] });
+            setNewSkillHtml({ ...newSkillHtml, [index]: '' });
         }
     };
 
@@ -86,7 +93,7 @@ export function SkillsForm() {
                                         key={itemIndex}
                                         className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-sm font-bold border border-slate-200 dark:border-slate-700 shadow-sm"
                                     >
-                                        {item}
+                                        <span dangerouslySetInnerHTML={{ __html: item }} />
                                         <button
                                             onClick={() => removeSkillItem(index, itemIndex)}
                                             className="text-red-400 hover:text-red-600 dark:hover:text-red-500 transition-colors"
@@ -97,26 +104,22 @@ export function SkillsForm() {
                                 ))}
                             </div>
 
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={newSkillInput[index] || ''}
-                                    onChange={(e) =>
-                                        setNewSkillInput({ ...newSkillInput, [index]: e.target.value })
-                                    }
-                                    onKeyPress={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            addSkillItem(index);
+                            <div className="flex gap-2 items-end">
+                                <div className="flex-1">
+                                    <RichTextEditor
+                                        value={newSkillHtml[index] || ''}
+                                        onChange={(html) =>
+                                            setNewSkillHtml({ ...newSkillHtml, [index]: html })
                                         }
-                                    }}
-                                    className="flex-1 px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-bold transition-all"
-                                    placeholder="Type a skill..."
-                                    spellCheck={true}
-                                />
+                                        singleLine={true}
+                                        placeholder="Type a skill..."
+                                        className=""
+                                        onEnter={() => addSkillItem(index)}
+                                    />
+                                </div>
                                 <button
                                     onClick={() => addSkillItem(index)}
-                                    className="px-6 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-md flex items-center gap-2"
+                                    className="px-6 h-[38px] sm:h-[42px] bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-md flex items-center gap-2"
                                 >
                                     <Plus size={14} strokeWidth={3} />
                                     Add

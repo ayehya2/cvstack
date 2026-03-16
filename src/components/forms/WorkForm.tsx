@@ -103,6 +103,7 @@ export function WorkForm() {
                                     onChange={(val) => updateWork(index, { endDate: val })}
                                     placeholder="Present"
                                     showPresent={true}
+                                    showPresentToggle={true}
                                 />
                             </div>
                         </div>

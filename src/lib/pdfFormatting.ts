@@ -1,5 +1,89 @@
 import type { FormattingOptions, FontFamily, BulletStyle, ColorTheme, BodyTextWeight, Spacing, DateSeparator, SectionTitleSize, NameSize, BulletIndent, SectionDivider, SkillLayout, DateFormat, SubHeaderWeight } from '../types';
 import { Font } from '@react-pdf/renderer';
+import React from 'react';
+import { Text } from '@react-pdf/renderer';
+
+/**
+ * Convert simple HTML (strong, em, u) into React-PDF <Text> elements.
+ * Supports: <strong>, <b>, <em>, <i>, <u>
+ * Used for rendering skill items and other HTML-containing fields in PDFs.
+ */
+export function renderHtmlText(html: string, baseStyle?: React.CSSProperties): React.ReactNode {
+    if (!html) return html;
+
+    // Strip wrapping <p> and </p> tags from RTE output, also <br> tags
+    const cleaned = html
+        .replace(/<p>/gi, '')
+        .replace(/<\/p>/gi, '')
+        .replace(/<br\s*\/?>/gi, ' ')
+        .trim();
+
+    if (!cleaned.includes('<')) {
+        // No HTML tags — return plain text
+        return cleaned;
+    }
+
+    const segments: React.ReactNode[] = [];
+    let key = 0;
+
+    const tagRegex = /<(strong|b|em|i|u)>(.*?)<\/\1>/gi;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    tagRegex.lastIndex = 0;
+
+    while ((match = tagRegex.exec(cleaned)) !== null) {
+        // Add text before this tag
+        if (match.index > lastIndex) {
+            segments.push(cleaned.substring(lastIndex, match.index));
+        }
+
+        const tag = match[1].toLowerCase();
+        const content = match[2];
+        const style: Record<string, unknown> = { ...baseStyle };
+
+        if (tag === 'strong' || tag === 'b') {
+            style.fontWeight = 700;
+        } else if (tag === 'em' || tag === 'i') {
+            style.fontStyle = 'italic';
+        } else if (tag === 'u') {
+            style.textDecoration = 'underline';
+        }
+
+        segments.push(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            React.createElement(Text, { key: key++, style } as any, content)
+        );
+
+        lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text after last tag
+    if (lastIndex < cleaned.length) {
+        segments.push(cleaned.substring(lastIndex));
+    }
+
+    if (segments.length === 0) return html;
+    if (segments.length === 1 && typeof segments[0] === 'string') return segments[0];
+
+    return segments;
+}
+
+/**
+ * Render an array of skill items with HTML support, joined by a separator.
+ * Returns React-PDF <Text> children that can be placed inside a <Text> parent.
+ */
+export function renderSkillItems(items: string[], separator: string): React.ReactNode[] {
+    const result: React.ReactNode[] = [];
+    const filtered = items.filter(i => i.trim());
+    filtered.forEach((item, idx) => {
+        result.push(React.createElement(React.Fragment, { key: `item-${idx}` }, renderHtmlText(item)));
+        if (idx < filtered.length - 1) {
+            result.push(separator);
+        }
+    });
+    return result;
+}
 
 /**
  * Register custom fonts for full Unicode support in PDF rendering.
@@ -29,8 +113,17 @@ Font.register({
     ],
 });
 
-// Disable word hyphenation globally so PDF text doesn't break mid-word
-Font.registerHyphenationCallback((word) => [word]);
+// Smart word hyphenation: break very long words (>20 chars) to prevent PDF overflow.
+// Normal words are kept intact, but extremely long unbroken strings get split.
+Font.registerHyphenationCallback((word) => {
+    if (word.length <= 20) return [word];
+    // Break long words into chunks of 15 characters
+    const chunks: string[] = [];
+    for (let i = 0; i < word.length; i += 15) {
+        chunks.push(word.slice(i, i + 15));
+    }
+    return chunks;
+});
 
 /**
  * PDF Font Family Mapping

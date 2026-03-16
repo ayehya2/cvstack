@@ -12,6 +12,7 @@ import {
     getPDFBulletGap,
     getPDFSectionHeaderStyle,
     getPDFSkillSeparator,
+    renderSkillItems,
     getPDFDateFormat,
     getPDFDateSeparator,
     getPDFBodyTextWeight,
@@ -19,6 +20,7 @@ import {
     getPDFSectionTitleSpacing
 } from '../lib/pdfFormatting';
 import { parseBoldTextPDF } from '../lib/parseBoldText';
+import { renderEducationSubsections } from '../lib/educationSubsections';
 
 const createStyles = (formatting: FormattingOptions) => {
     const accentColor = getPDFColorValue(formatting.colorTheme, formatting.customColor);
@@ -181,7 +183,7 @@ export function CreativePDFTemplate({ data, documentTitle }: CreativePDFTemplate
                             {skills.filter(s => s.category?.trim() || s.items.some(i => i.trim())).map((skillGroup, idx) => (
                                 <View key={idx} style={styles.sidebarSkillGroup}>
                                     <Text style={styles.sidebarSkillCategory}>{skillGroup.category}</Text>
-                                    <Text style={styles.sidebarSkillItems}>{skillGroup.items.filter(i => i.trim()).join(getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                    <Text style={styles.sidebarSkillItems}>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
                                 </View>
                             ))}
                         </View>
@@ -232,6 +234,7 @@ export function CreativePDFTemplate({ data, documentTitle }: CreativePDFTemplate
                                                 {edu.degree}{edu.field && ` in ${edu.field}`}
                                             </Text>
                                             {formatting.showGPA && edu.gpa && <Text style={{ fontSize: 9, color: '#888888' }}>GPA: {formatting.showGPA && edu.gpa}</Text>}
+                                            {renderEducationSubsections({ thesis: edu.thesis, clubs: edu.clubs, courses: edu.courses, activities: edu.activities, baseFontSize: getPDFFontSize(formatting.baseFontSize), accentColor: getPDFColorValue(formatting.colorTheme, formatting.customColor), bulletSymbol: getPDFBulletSymbol(formatting.bulletStyle) })}
                                         </View>
                                     ))}
                                 </View>

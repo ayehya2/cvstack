@@ -1,4 +1,5 @@
 import type { ResumeData, CoverLetterData, DocumentType } from '../types';
+import { migrateResumeMarkdown } from './migrateMarkdown';
 
 const STORAGE_KEY = 'resume-builder-data';
 const VERSION_KEY = 'resume-builder-version';
@@ -43,9 +44,119 @@ export function clearResumeData(): void {
     }
 }
 
-// Export to JSON file
+// Export to JSON file (full backup including formatting)
 export function exportToJSON(data: ResumeData): string {
     return JSON.stringify(data, null, 2);
+}
+
+// Export lean JSON (content only — no formatting, no empty fields)
+export function exportToContentJSON(data: ResumeData): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const lean: Record<string, any> = {
+        selectedTemplate: data.selectedTemplate,
+    };
+
+    // Basics — only non-empty fields
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const basics: Record<string, any> = {};
+    if (data.basics.name) basics.name = data.basics.name;
+    if (data.basics.email) basics.email = data.basics.email;
+    if (data.basics.phone) basics.phone = data.basics.phone;
+    if (data.basics.address) basics.address = data.basics.address;
+    if (data.basics.summary) basics.summary = data.basics.summary;
+    const sites = (data.basics.websites || []).filter(w => w.url || w.name);
+    if (sites.length > 0) basics.websites = sites;
+    if (Object.keys(basics).length > 0) lean.basics = basics;
+
+    // Work — only entries with content
+    const work = (data.work || [])
+        .filter(j => j.company || j.position)
+        .map(j => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const entry: Record<string, any> = {};
+            if (j.company) entry.company = j.company;
+            if (j.position) entry.position = j.position;
+            if (j.location) entry.location = j.location;
+            if (j.startDate) entry.startDate = j.startDate;
+            if (j.endDate) entry.endDate = j.endDate;
+            const bullets = (j.bullets || []).filter(b => b.trim());
+            if (bullets.length > 0) entry.bullets = bullets;
+            return entry;
+        });
+    if (work.length > 0) lean.work = work;
+
+    // Education
+    const education = (data.education || [])
+        .filter(e => e.institution || e.degree)
+        .map(e => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const entry: Record<string, any> = {};
+            if (e.institution) entry.institution = e.institution;
+            if (e.degree) entry.degree = e.degree;
+            if (e.field) entry.field = e.field;
+            if (e.location) entry.location = e.location;
+            if (e.graduationDate) entry.graduationDate = e.graduationDate;
+            if (e.gpa) entry.gpa = e.gpa;
+            if (e.description) entry.description = e.description;
+            return entry;
+        });
+    if (education.length > 0) lean.education = education;
+
+    // Skills
+    const skills = (data.skills || [])
+        .filter(s => s.category || s.items.some(i => i.trim()))
+        .map(s => ({
+            category: s.category,
+            items: s.items.filter(i => i.trim()),
+        }));
+    if (skills.length > 0) lean.skills = skills;
+
+    // Projects
+    const projects = (data.projects || [])
+        .filter(p => p.name)
+        .map(p => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const entry: Record<string, any> = { name: p.name };
+            const bullets = (p.bullets || []).filter(b => b.trim());
+            if (bullets.length > 0) entry.bullets = bullets;
+            const keywords = (p.keywords || []).filter(k => k.trim());
+            if (keywords.length > 0) entry.keywords = keywords;
+            if (p.url) entry.url = p.url;
+            if (p.urlName) entry.urlName = p.urlName;
+            if (p.startDate) entry.startDate = p.startDate;
+            if (p.endDate) entry.endDate = p.endDate;
+            return entry;
+        });
+    if (projects.length > 0) lean.projects = projects;
+
+    // Awards
+    const awards = (data.awards || [])
+        .filter(a => a.title)
+        .map(a => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const entry: Record<string, any> = { title: a.title };
+            if (a.awarder) entry.awarder = a.awarder;
+            if (a.date) entry.date = a.date;
+            if (a.summary) entry.summary = a.summary;
+            return entry;
+        });
+    if (awards.length > 0) lean.awards = awards;
+
+    // Custom sections
+    const customSections = (data.customSections || [])
+        .filter(cs => cs.items.some(item => item.title || item.subtitle || (item.bullets && item.bullets.some(b => b.trim()))))
+        .map(cs => ({
+            id: cs.id,
+            title: cs.title,
+            type: cs.type,
+            items: cs.items.filter(item => item.title || item.subtitle || (item.bullets && item.bullets.some(b => b.trim()))),
+        }));
+    if (customSections.length > 0) lean.customSections = customSections;
+
+    // Sections order
+    if (data.sections) lean.sections = data.sections;
+
+    return JSON.stringify(lean, null, 2);
 }
 
 // Import from JSON string
@@ -97,6 +208,9 @@ function migrateData(data: any): ResumeData {
             return section;
         });
     }
+
+    // Migrate markdown formatting (**bold**, *italic*) to HTML for rich text editor
+    migrateResumeMarkdown(data);
 
     return data as ResumeData;
 }

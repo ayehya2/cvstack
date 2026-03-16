@@ -1,198 +1,197 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 
 /**
- * SmartDateInput - A professional date picker component that matches the app's aesthetic.
- * Uses high-quality styled selects for Month/Year (resumes) and Full Date (cover letters).
- * Fully matches the application theme and supports "Present" seamlessly.
+ * SmartDateInput – Clean date picker:
+ * - type='month': Single input → popover with year nav + 4×3 month grid (for resume)
+ * - type='date':  Native browser date input (for cover letter — needs full date)
  */
 
 interface SmartDateInputProps {
     value: string;
     onChange: (value: string) => void;
-    type: 'month' | 'date'; // 'month' for resume (MMM YYYY), 'date' for cover letter (MMMM D, YYYY)
+    type: 'month' | 'date';
     showPresent?: boolean;
+    showPresentToggle?: boolean;
     placeholder?: string;
     label?: string;
     className?: string;
 }
 
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export function SmartDateInput({
     value,
     onChange,
     type,
     showPresent = false,
+    showPresentToggle = false,
     label,
     className = '',
 }: SmartDateInputProps) {
-    // Current year + some future for graduation etc.
+    // ── Cover letter: native <input type="date"> ──
+    if (type === 'date') {
+        // Convert display value ("March 15, 2026") to YYYY-MM-DD for input
+        const toInputDate = (v: string) => {
+            if (!v) return '';
+            try {
+                const d = new Date(v);
+                if (isNaN(d.getTime())) return '';
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            } catch { return ''; }
+        };
+
+        const handleNativeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const val = e.target.value;
+            if (!val) { onChange(''); return; }
+            const [y, m, d] = val.split('-').map(Number);
+            const date = new Date(y, m - 1, d);
+            onChange(new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(date));
+        };
+
+        return (
+            <div className={`w-full ${className}`}>
+                {label && (
+                    <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
+                        {label}
+                    </label>
+                )}
+                <input
+                    type="date"
+                    value={toInputDate(value)}
+                    onChange={handleNativeChange}
+                    className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all h-[38px] sm:h-[42px]"
+                />
+            </div>
+        );
+    }
+
+    // ── Resume sections: month picker popover ──
+    return <MonthPicker value={value} onChange={onChange} label={label} className={className} showPresent={showPresent} showPresentToggle={showPresentToggle} />;
+}
+
+/* ── Month Picker (internal) ── */
+
+function MonthPicker({ value, onChange, label, className = '', showPresent, showPresentToggle }: {
+    value: string; onChange: (v: string) => void; label?: string; className?: string; showPresent?: boolean; showPresentToggle?: boolean;
+}) {
+    const [open, setOpen] = useState(false);
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const currentYear = new Date().getFullYear();
-    const years = useMemo(() => {
-        const y = [];
-        for (let i = currentYear + 10; i >= 1950; i--) {
-            y.push(i.toString());
-        }
-        return y;
-    }, [currentYear]);
 
-    // Parse current value
-    // eslint-disable-next-line react-hooks/preserve-manual-memoization
-    const parsedDate = useMemo(() => {
-        if (!value) return { month: '', year: '', day: '' };
-        if (value.toLowerCase() === 'present' || value.toLowerCase() === 'currently' || value.toLowerCase() === 'ongoing') {
-            return { month: '', year: value, day: '' };
-        }
+    const isPresent = !!value && (value.toLowerCase() === 'present' || value.toLowerCase() === 'currently' || value.toLowerCase() === 'ongoing');
 
+    const parsed = useMemo(() => {
+        if (!value || isPresent) return { month: -1, year: currentYear };
+        const parts = value.split(' ');
+        if (parts.length === 2) {
+            const mIdx = MONTHS_SHORT.findIndex(m => m.toLowerCase() === parts[0].toLowerCase());
+            if (mIdx >= 0) return { month: mIdx, year: parseInt(parts[1]) || currentYear };
+        }
         try {
-            const date = new Date(value);
-            if (isNaN(date.getTime())) {
-                // Try manual parsing if Date fails (for "Jan 2020" style)
-                const parts = value.split(' ');
-                if (parts.length === 2) {
-                    const mIdx = MONTHS_SHORT.findIndex(m => m.toLowerCase() === parts[0].toLowerCase()) + 1;
-                    if (mIdx > 0) return { month: mIdx.toString(), year: parts[1], day: '1' };
-                }
-                return { month: '', year: '', day: '' };
-            }
+            const d = new Date(value);
+            if (!isNaN(d.getTime())) return { month: d.getMonth(), year: d.getFullYear() };
+        } catch { /* ignore */ }
+        return { month: -1, year: currentYear };
+    }, [value, isPresent, currentYear]);
 
-            return {
-                month: (date.getMonth() + 1).toString(),
-                year: date.getFullYear().toString(),
-                day: date.getDate().toString()
-            };
-        } catch {
-            return { month: '', year: '', day: '' };
-        }
-    }, [value]);
+    const [viewYear, setViewYear] = useState(parsed.year);
 
-    const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const m = e.target.value;
-        if (!m) return;
+    useEffect(() => {
+        if (parsed.year && !isPresent) setViewYear(parsed.year);
+    }, [parsed.year, isPresent]);
 
-        if (parsedDate.year.toLowerCase() === 'present' || parsedDate.year.toLowerCase() === 'ongoing') {
-            // If they pick a month, they probably want to pick a year too, so reset year
-            updateValue(m, currentYear.toString(), parsedDate.day || '1');
-        } else {
-            updateValue(m, parsedDate.year || currentYear.toString(), parsedDate.day || '1');
-        }
+    useEffect(() => {
+        if (!open) return;
+        const h = (e: MouseEvent) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener('mousedown', h);
+        return () => document.removeEventListener('mousedown', h);
+    }, [open]);
+
+    const handleMonthClick = (idx: number) => {
+        onChange(`${MONTHS_SHORT[idx]} ${viewYear}`);
+        setOpen(false);
     };
 
-    const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const y = e.target.value;
-        if (!y) {
-            onChange('');
-            return;
-        }
-
-        if (y.toLowerCase() === 'present' || y.toLowerCase() === 'ongoing') {
-            onChange(y.charAt(0).toUpperCase() + y.slice(1).toLowerCase());
-            return;
-        }
-
-        updateValue(parsedDate.month || '1', y, parsedDate.day || '1');
+    const handlePresentToggle = () => {
+        if (isPresent) { onChange(''); } else { onChange('Present'); setOpen(false); }
     };
 
-    const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const d = e.target.value;
-        if (!d) return;
-        updateValue(parsedDate.month || '1', parsedDate.year || currentYear.toString(), d);
-    };
-
-    const updateValue = (m: string, y: string, d: string) => {
-        const monthIdx = parseInt(m) - 1;
-        const yearNum = parseInt(y);
-        const dayNum = parseInt(d);
-
-        if (type === 'month') {
-            onChange(`${MONTHS_SHORT[monthIdx]} ${yearNum}`);
-        } else {
-            const date = new Date(yearNum, monthIdx, dayNum);
-            const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-            onChange(new Intl.DateTimeFormat('en-US', options).format(date));
-        }
-    };
-
-    const selectBaseClasses = "px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all appearance-none cursor-pointer h-[38px] sm:h-[42px]";
-
-    const isSpecialYear = parsedDate.year.toLowerCase() === 'present' || parsedDate.year.toLowerCase() === 'ongoing';
+    const displayText = isPresent ? 'Present' : value || '';
 
     return (
-        <div className={`w-full ${className}`}>
+        <div ref={wrapperRef} className={`w-full relative ${className}`}>
             {label && (
                 <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
                     {label}
                 </label>
             )}
 
-            <div className="flex gap-2">
-                {/* Month Dropdown */}
-                <div className={`relative flex-1 ${isSpecialYear ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
-                    <select
-                        value={parsedDate.month}
-                        onChange={handleMonthChange}
-                        className={`${selectBaseClasses} w-full`}
-                    >
-                        <option value="" disabled>Month</option>
-                        {(type === 'month' ? MONTHS_SHORT : MONTHS_FULL).map((m, i) => (
-                            <option key={m} value={(i + 1).toString()}>{m}</option>
-                        ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-slate-400">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                </div>
+            <button
+                type="button"
+                onClick={() => setOpen(!open)}
+                className={`w-full px-3 py-1.5 sm:py-2 border-2 text-left font-medium transition-all h-[38px] sm:h-[42px] flex items-center justify-between ${
+                    open
+                        ? 'border-blue-500 ring-2 ring-blue-400/20 bg-white dark:bg-slate-950'
+                        : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-950 hover:border-slate-400 dark:hover:border-slate-500'
+                } ${displayText ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'}`}
+            >
+                <span className={isPresent ? 'text-blue-600 dark:text-blue-400 font-semibold' : ''}>
+                    {displayText || 'MM / YYYY'}
+                </span>
+                <svg className={`w-4 h-4 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
 
-                {/* Day Dropdown (Only for 'date' type) */}
-                {type === 'date' && (
-                    <div className={`relative w-20 ${isSpecialYear ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
-                        <select
-                            value={parsedDate.day}
-                            onChange={handleDayChange}
-                            className={`${selectBaseClasses} w-full`}
-                        >
-                            <option value="" disabled>Day</option>
-                            {Array.from({ length: 31 }, (_, i) => (i + 1).toString()).map(d => (
-                                <option key={d} value={d}>{d}</option>
-                            ))}
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-slate-400">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+            {open && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 shadow-xl z-50">
+                    {/* Year nav */}
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                        <button type="button" onClick={() => setViewYear(y => y - 1)} className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all rounded-full">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <span className="text-base font-black text-slate-800 dark:text-white">{viewYear}</span>
+                        <button type="button" onClick={() => setViewYear(y => y + 1)} className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all rounded-full">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
+
+                    {/* Month grid */}
+                    <div className="grid grid-cols-4 gap-1 p-1.5">
+                        {MONTHS_SHORT.map((m, idx) => {
+                            const isSelected = !isPresent && parsed.month === idx && parsed.year === viewYear;
+                            const isCurrent = idx === new Date().getMonth() && viewYear === currentYear;
+                            return (
+                                <button key={m} type="button" onClick={() => handleMonthClick(idx)}
+                                    className={`py-1.5 text-xs font-semibold transition-all rounded-sm ${
+                                        isSelected ? 'bg-blue-600 text-white shadow-sm'
+                                            : isCurrent ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100'
+                                                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    }`}
+                                >{m}</button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Toggle */}
+                    {(showPresent || showPresentToggle) && (
+                        <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-800">
+                            <label className="flex items-center gap-2 cursor-pointer select-none group">
+                                <div className="relative">
+                                    <input type="checkbox" checked={isPresent} onChange={handlePresentToggle} className="sr-only" />
+                                    <div className={`w-9 h-5 rounded-full transition-colors ${isPresent ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`} />
+                                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${isPresent ? 'translate-x-4' : 'translate-x-0'}`} />
+                                </div>
+                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+                                    Currently here
+                                </span>
+                            </label>
                         </div>
-                    </div>
-                )}
-
-                {/* Year Dropdown */}
-                <div className="relative flex-1">
-                    <select
-                        value={parsedDate.year}
-                        onChange={handleYearChange}
-                        className={`${selectBaseClasses} w-full`}
-                    >
-                        <option value="" disabled>Year</option>
-                        {showPresent && (
-                            <>
-                                <option value="Present">Present</option>
-                                <option value="Ongoing">Ongoing</option>
-                                <option disabled>──────────</option>
-                            </>
-                        )}
-                        {years.map(y => (
-                            <option key={y} value={y}>{y}</option>
-                        ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-slate-400">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
+                    )}
                 </div>
-            </div>
+            )}
         </div>
     );
 }

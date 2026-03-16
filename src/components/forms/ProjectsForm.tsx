@@ -104,6 +104,7 @@ export function ProjectsForm() {
                                     onChange={(val) => updateProject(index, { endDate: val })}
                                     placeholder="Present"
                                     showPresent={true}
+                                    showPresentToggle={true}
                                 />
                             </div>
                         </div>

@@ -39,7 +39,7 @@ const KEY_MAP: Record<string, string> = {
     graduationDate: 'gd',
     gpa: 'g',
     description: 'de',
-    name_proj: 'np', // mapping 'name' in projects to 'np' to avoid collision if needed, but keys are local to objects
+    name_proj: 'np',
 
     // Skills
     category: 'ca',
@@ -120,12 +120,14 @@ function compactResumeData(data: unknown): any {
  * Compress & base64url-encode a ResumeData object for URL sharing.
  */
 export function encodeResumeForUrl(resumeData: ResumeData): string {
-    const { ...cleanData } = resumeData;
+    // Strip formatting, template, and sections to keep share URLs short
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { formatting, selectedTemplate, sections, ...cleanData } = resumeData;
     const compacted = compactResumeData(cleanData);
     const mapped = applyKeyMapping(compacted, KEY_MAP);
 
     const json = JSON.stringify(mapped);
-    const compressed = pako.deflate(new TextEncoder().encode(json));
+    const compressed = pako.deflate(new TextEncoder().encode(json), { level: 9 });
     let base64 = btoa(String.fromCharCode(...compressed));
     base64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     return base64;
@@ -164,11 +166,61 @@ export function decodeResumeFromUrl(encoded: string): ResumeData | null {
     }
 }
 
+// ── Short-link via server-side Proxy (Next.js) ──
+
 /**
- * Build the full shareable URL from the current resume state.
+ * Upload compressed resume data to our proxy API which then calls dpaste.org.
+ * This bypasses browser CORS restrictions.
  */
-export function buildShareUrl(resumeData: ResumeData): string {
+export async function buildShareUrl(resumeData: ResumeData): Promise<string> {
     const encoded = encodeResumeForUrl(resumeData);
-    const base = window.location.origin + window.location.pathname;
-    return `${base}?data=${encoded}`;
+    
+    try {
+        // Find the API URL - in development it's likely on port 3000
+        const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const apiBase = isDev ? 'http://localhost:3000' : '';
+        
+        const response = await fetch(`${apiBase}/api/share`, {
+            method: 'POST',
+            body: JSON.stringify({ content: encoded }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Proxy API returned ${response.status}`);
+        }
+
+        const data = await response.json();
+        const pasteId = data.id;
+        
+        // Build our short share URL: site.com/?s=AbCdE
+        const base = window.location.origin + window.location.pathname;
+        return `${base}?s=${pasteId}`;
+    } catch (error) {
+        console.warn('Share proxy failed, falling back to inline URL:', error);
+        // Fallback to inline (long) URL
+        const base = window.location.origin + window.location.pathname;
+        return `${base}?data=${encoded}`;
+    }
+}
+
+/**
+ * Fetch resume data from dpaste.org (raw)
+ * This might still have CORS issues if dpaste doesn't allow raw GET from browser,
+ * but typically raw endpoints are more permissive.
+ */
+export async function fetchFromShortLink(pasteId: string): Promise<ResumeData | null> {
+    try {
+        const response = await fetch(`https://dpaste.org/${pasteId}/raw`);
+        if (!response.ok) {
+            throw new Error(`dpaste.org returned ${response.status}`);
+        }
+        const encoded = (await response.text()).trim();
+        return decodeResumeFromUrl(encoded);
+    } catch (error) {
+        console.warn('Failed to fetch from short link:', error);
+        return null;
+    }
 }

@@ -21,7 +21,36 @@ export const SAMPLE_RESUME_DATA: ResumeData = {
             location: 'Stanford, CA',
             graduationDate: 'Jun 2016',
             gpa: '3.92',
-            description: 'Thesis: "Adaptive Load Balancing in Heterogeneous Distributed Systems" — Published at ACM SIGCOMM 2016. Coursework: Advanced Operating Systems, Distributed Systems, Machine Learning, Computer Architecture.',
+            description: 'Adaptive Load Balancing in Heterogeneous Distributed Systems — Published at ACM SIGCOMM 2016.',
+            thesis: 'Adaptive Load Balancing in Heterogeneous Distributed Systems',
+            clubs: [
+                {
+                    name: 'Stanford Robotics Club',
+                    role: 'Lead Developer',
+                    location: 'Stanford, CA',
+                    startDate: 'Sep 2014',
+                    endDate: 'Jun 2016',
+                    bullets: [
+                        'Led a team of 15 students to build an autonomous rover for the NASA Space Robotics Challenge, placing 3rd nationally',
+                        'Developed the computer vision module using OpenCV and Python, enabling real-time obstacle avoidance and path planning',
+                    ]
+                }
+            ],
+            courses: [
+                'Advanced Distributed Systems',
+                'Machine Learning',
+                'Advanced Operating Systems',
+                'Computer Architecture'
+            ],
+            activities: [
+                {
+                    title: 'Volunteering',
+                    items: [
+                        'Mentor for Girls Who Code, teaching Python and web development basics to high school students',
+                        'Volunteer firefighter at San Francisco Fire Department (Reserve Division)',
+                    ]
+                }
+            ],
         },
         {
             institution: 'University of Michigan, Ann Arbor',

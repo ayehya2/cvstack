@@ -15,7 +15,7 @@ import {
     Download, Printer, ZoomIn, ZoomOut, Maximize,
     ChevronLeft, ChevronRight, Info, PanelLeft, X, Code2, FileJson
 } from 'lucide-react';
-import { exportToJSON } from '../../lib/storage';
+import { exportToContentJSON } from '../../lib/storage';
 
 /* ──────────────────────────────────────
    Helpers
@@ -254,7 +254,7 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType }:
 
     /* ── Export JSON ── */
     const handleExportJSON = useCallback(() => {
-        const json = exportToJSON(resumeData);
+        const json = exportToContentJSON(resumeData);
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

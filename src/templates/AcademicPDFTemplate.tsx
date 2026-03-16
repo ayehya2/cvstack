@@ -19,6 +19,7 @@ import {
     getPDFSectionTitleSpacing
 } from '../lib/pdfFormatting';
 import { parseBoldTextPDF } from '../lib/parseBoldText';
+import { renderEducationSubsections } from '../lib/educationSubsections';
 
 /**
  * Academic PDF Template (#10)
@@ -187,6 +188,7 @@ export function AcademicPDFTemplate({ data, documentTitle }: AcademicPDFTemplate
                                                     {edu.degree}{edu.field && ` in ${edu.field}`}
                                                 </Text>
                                                 {formatting.showGPA && edu.gpa && <Text style={{ fontSize: 9, color: '#666666' }}>GPA: {formatting.showGPA && edu.gpa}</Text>}
+                                                {renderEducationSubsections({ thesis: edu.thesis, clubs: edu.clubs, courses: edu.courses, activities: edu.activities, baseFontSize: getPDFFontSize(formatting.baseFontSize), accentColor: getPDFColorValue(formatting.colorTheme, formatting.customColor), bulletSymbol: getPDFBulletSymbol(formatting.bulletStyle) })}
                                             </View>
                                         </View>
                                     </View>

@@ -14,6 +14,7 @@ import {
     getPDFBulletGap,
     getPDFSectionHeaderStyle,
     getPDFSkillSeparator,
+    renderSkillItems,
     getPDFDateFormat,
     getPDFDateSeparator,
     getPDFBodyTextWeight,
@@ -136,6 +137,39 @@ const createStyles = (formatting: FormattingOptions) => {
             color: '#64748b',
             marginTop: 2,
         },
+        thesisText: {
+            fontSize: baseFontSize - 1,
+            color: '#475569',
+            marginTop: 2,
+            marginBottom: 4,
+            fontStyle: 'italic',
+        },
+        subSectionTitle: {
+            fontSize: 9,
+            fontWeight: 'bold',
+            color: accentColor,
+            textTransform: 'uppercase',
+            marginTop: 8,
+            marginBottom: 4,
+        },
+        subSectionEntry: {
+            marginBottom: 6,
+        },
+        subSectionHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 1,
+        },
+        subSectionName: {
+            fontSize: baseFontSize - 1,
+            fontWeight: 'bold',
+            color: '#1e293b',
+        },
+        subSectionSub: {
+            fontSize: 9,
+            fontStyle: 'italic',
+            color: '#64748b',
+        },
     });
 };
 
@@ -207,7 +241,65 @@ export function ModernPDFTemplate({ data, documentTitle }: ModernPDFTemplateProp
                                         <Text style={styles.entrySubtitle}>
                                             {edu.degree}{edu.field && ` in ${edu.field}`}
                                         </Text>
-                                        {formatting.showGPA && edu.gpa && <Text style={{ fontSize: getPDFFontSize(formatting.baseFontSize) - 1, fontWeight: 'bold' }}>GPA: {formatting.showGPA && edu.gpa}</Text>}
+                                        
+                                        {edu.thesis && (
+                                            <Text style={styles.thesisText}>Thesis: {edu.thesis}</Text>
+                                        )}
+
+                                        {formatting.showGPA && edu.gpa && (
+                                            <Text style={{ fontSize: getPDFFontSize(formatting.baseFontSize) - 1, fontWeight: 'bold', marginBottom: 4 }}>GPA: {edu.gpa}</Text>
+                                        )}
+
+                                        {/* Clubs */}
+                                        {edu.clubs && edu.clubs.length > 0 && (
+                                            <View>
+                                                <Text style={styles.subSectionTitle}>Clubs & Organizations</Text>
+                                                {edu.clubs.map((club, cIdx) => (
+                                                    <View key={cIdx} style={styles.subSectionEntry}>
+                                                        <View style={styles.subSectionHeader}>
+                                                            <Text style={styles.subSectionName}>{club.name}</Text>
+                                                            <Text style={styles.dateRange}>{club.startDate} {club.startDate && club.endDate ? '–' : ''} {club.endDate}</Text>
+                                                        </View>
+                                                        <Text style={styles.subSectionSub}>{club.role}</Text>
+                                                        {club.bullets && club.bullets.filter(b => b.trim()).map((bullet, bIdx) => (
+                                                            <View key={bIdx} style={{ ...styles.bulletPoint, marginBottom: 1, marginTop: 1 }}>
+                                                                <Text style={styles.bulletSymbol}>{bulletSymbol}</Text>
+                                                                <Text style={{ flex: 1, fontSize: getPDFFontSize(formatting.baseFontSize) - 2 }}>{bullet}</Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        )}
+
+                                        {/* Courses */}
+                                        {edu.courses && edu.courses.length > 0 && (
+                                            <View>
+                                                <Text style={styles.subSectionTitle}>Relevant Coursework</Text>
+                                                <Text style={{ fontSize: getPDFFontSize(formatting.baseFontSize) - 2, color: '#475569', lineHeight: 1.4 }}>
+                                                    {edu.courses.join(', ')}
+                                                </Text>
+                                            </View>
+                                        )}
+
+                                        {/* Activities */}
+                                        {edu.activities && edu.activities.length > 0 && (
+                                            <View>
+                                                {edu.activities.map((section, sIdx) => (
+                                                    <View key={sIdx}>
+                                                        <Text style={styles.subSectionTitle}>{section.title}</Text>
+                                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                                                            {section.items.filter(it => it.trim()).map((item, iIdx) => (
+                                                                <View key={iIdx} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                    <Text style={{ ...styles.bulletSymbol, fontSize: 8 }}>{bulletSymbol}</Text>
+                                                                    <Text style={{ fontSize: getPDFFontSize(formatting.baseFontSize) - 2 }}>{item}</Text>
+                                                                </View>
+                                                            ))}
+                                                        </View>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        )}
                                     </View>
                                 ))}
                             </View>
@@ -251,7 +343,7 @@ export function ModernPDFTemplate({ data, documentTitle }: ModernPDFTemplateProp
                                     <View key={idx} style={styles.skillCategory}>
                                         <Text>
                                             <Text style={styles.skillCategoryName}>{skillGroup.category}: </Text>
-                                            <Text style={styles.skillItems}>{skillGroup.items.filter(i => i.trim()).join(getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                            <Text style={styles.skillItems}>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
                                         </Text>
                                     </View>
                                 ))}

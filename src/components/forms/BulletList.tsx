@@ -1,6 +1,7 @@
 import { X, Plus } from 'lucide-react';
 import { useEffect } from 'react';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
+import { RichTextEditor } from './RichTextEditor';
 
 interface BulletListProps {
     bullets: string[];
@@ -42,26 +43,20 @@ export function BulletList({ bullets, onChange, placeholder, showAddButton = tru
     return (
         <div className="space-y-2">
             {bullets.map((bullet, idx) => (
-                <div key={idx} className="flex gap-1.5 sm:gap-2 items-center">
-                    <span className="text-xl leading-none text-slate-600 dark:text-slate-400">-</span>
-                    <input
-                        type="text"
-                        value={bullet}
-                        onChange={(e) => updateBullet(idx, e.target.value)}
-                        spellCheck={true}
-                        className={`
-                            flex-1 px-2 py-1 sm:py-1.5 border-2
-                            focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500
-                            bg-white border-slate-300 text-slate-900
-                            dark:bg-slate-950 dark:border-slate-600 dark:text-white
-                            text-xs sm:text-sm
-                        `}
-                        placeholder={placeholder || 'Enter bullet point'}
-                    />
+                <div key={idx} className="flex gap-1.5 sm:gap-2 items-start">
+                    <span className="text-xl leading-none text-slate-600 dark:text-slate-400 mt-1.5">-</span>
+                    <div className="flex-1">
+                        <RichTextEditor
+                            value={bullet}
+                            onChange={(html) => updateBullet(idx, html)}
+                            placeholder={placeholder || 'Enter bullet point'}
+                            singleLine
+                        />
+                    </div>
                     {bullets.length > 1 && (
                         <button
                             onClick={() => removeBullet(idx)}
-                            className="w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 bg-red-500/5 hover:bg-red-500/10 text-red-500/80 hover:text-red-500 border border-red-500/20 transition-all flex items-center justify-center rounded-none active:scale-95"
+                            className="w-8 sm:w-9 self-stretch flex-shrink-0 bg-red-500/5 hover:bg-red-500/10 text-red-500/80 hover:text-red-500 border border-red-500/20 transition-all flex items-center justify-center rounded-none active:scale-95"
                             type="button"
                             title="Remove point"
                         >
@@ -83,7 +78,7 @@ export function BulletList({ bullets, onChange, placeholder, showAddButton = tru
                     </button>
                 )}
                 <p className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 italic leading-tight ml-auto">
-                    Tip: Use <strong>**bold**</strong> and <em>*italic*</em>
+                    Tip: Select text for formatting options
                 </p>
             </div>
         </div>

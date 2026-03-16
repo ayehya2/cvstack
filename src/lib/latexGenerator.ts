@@ -16,6 +16,7 @@
  */
 
 import type { ResumeData, TemplateId, LaTeXFormattingOptions } from '../types';
+import { htmlToLatex, containsHtml } from './htmlToLatex';
 
 // ─── Template Configuration ─────────────────────────────────────────────────
 
@@ -182,7 +183,12 @@ const escapeLatex = (text: string): string => {
 const formatLatexText = (text: string): string => {
     if (!text) return '';
 
-    // First escape LaTeX special chars
+    // If input contains HTML tags (from rich text editor), use HTML-to-LaTeX converter
+    if (containsHtml(text)) {
+        return htmlToLatex(text);
+    }
+
+    // Legacy: escape LaTeX special chars, then convert markdown formatting
     let result = escapeLatex(text);
 
     // Convert **bold** to \textbf{bold} (must be before single *)
@@ -286,7 +292,39 @@ ${bullets.map(b => `  \\item ${b}`).join('\n')}
 \\end{itemize}`;
             }
 
-            return header + details;
+            // Thesis
+            let thesisLine = '';
+            if (edu.thesis) {
+                thesisLine = `\n\\textit{Thesis: ${escapeLatex(edu.thesis)}}`;
+            }
+
+            // Clubs & Organizations
+            let clubsBlock = '';
+            if (edu.clubs && edu.clubs.length > 0) {
+                const clubItems = edu.clubs.map(c => {
+                    const datePart = [c.startDate, c.endDate].filter(Boolean).join(' -- ');
+                    return `  \\item \\textbf{${escapeLatex(c.name || '')}}${c.role ? ` -- \\textit{${escapeLatex(c.role)}}` : ''}${datePart ? ` \\hfill ${escapeLatex(datePart)}` : ''}`;
+                }).join('\n');
+                clubsBlock = `\n\n\\textbf{Clubs \\& Organizations:}\n\\begin{itemize}[leftmargin=*,itemsep=${cfg.bulletItemSep},topsep=1pt]\n${clubItems}\n\\end{itemize}`;
+            }
+
+            // Relevant Coursework
+            let coursesLine = '';
+            if (edu.courses && edu.courses.length > 0) {
+                coursesLine = `\n\n\\textbf{Relevant Coursework:} ${edu.courses.map(escapeLatex).join(', ')}`;
+            }
+
+            // Activities & Honors
+            let activitiesBlock = '';
+            if (edu.activities && edu.activities.length > 0) {
+                activitiesBlock = edu.activities.map(section => {
+                    const items = section.items.filter(i => i.trim());
+                    if (items.length === 0) return '';
+                    return `\n\n\\textbf{${escapeLatex(section.title)}:} ${items.map(escapeLatex).join(', ')}`;
+                }).filter(Boolean).join('');
+            }
+
+            return header + details + thesisLine + clubsBlock + coursesLine + activitiesBlock;
         }).join(`\n\\vspace{${cfg.itemSep}}\n`)}
 `
         : '';
@@ -295,7 +333,7 @@ ${bullets.map(b => `  \\item ${b}`).join('\n')}
     const skillsSection = data.skills && data.skills.length > 0
         ? `\\section*{Skills}
 ${data.skills.map(skillGroup =>
-            `\\textbf{${escapeLatex(skillGroup.category || 'Skills')}:} ${(skillGroup.items || []).map(escapeLatex).join(', ')}`
+            `\\textbf{${escapeLatex(skillGroup.category || 'Skills')}:} ${(skillGroup.items || []).map(i => formatLatexText(i)).join(', ')}`
         ).join('\n\n')}
 `
         : '';
@@ -401,6 +439,7 @@ ${itemsTeX}
 \\usepackage[margin=${cfg.margins}]{geometry}
 \\usepackage{enumitem}
 \\usepackage{hyperref}
+\\usepackage[normalem]{ulem}
 ${cfg.parskip ? '\\usepackage{parskip}' : ''}
 \\usepackage{titlesec}
 ${cfg.extraPreamble ? `\n${cfg.extraPreamble}` : ''}

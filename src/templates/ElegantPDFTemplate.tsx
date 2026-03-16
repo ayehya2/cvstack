@@ -22,6 +22,7 @@ import {
     getPDFSectionBorderStyle
 } from '../lib/pdfFormatting';
 import { parseBoldTextPDF } from '../lib/parseBoldText';
+import { renderEducationSubsections } from '../lib/educationSubsections';
 
 const createStyles = (formatting: FormattingOptions) => {
     const accentColor = getPDFColorValue(formatting.colorTheme, formatting.customColor);
@@ -197,6 +198,7 @@ export function ElegantPDFTemplate({ data, documentTitle }: ElegantPDFTemplatePr
                                             </View>
                                             <Text style={styles.entrySubtitle}>{edu.degree}{edu.field && ` in ${edu.field}`}</Text>
                                             {formatting.showGPA && edu.gpa && <Text style={{ fontSize: getPDFFontSize(formatting.baseFontSize) - 1 }}>GPA: {formatting.showGPA && edu.gpa}</Text>}
+                                            {renderEducationSubsections({ thesis: edu.thesis, clubs: edu.clubs, courses: edu.courses, activities: edu.activities, baseFontSize: getPDFFontSize(formatting.baseFontSize), accentColor: getPDFColorValue(formatting.colorTheme, formatting.customColor), bulletSymbol: getPDFBulletSymbol(formatting.bulletStyle) })}
                                         </View>
                                     ))}
                                 </View>

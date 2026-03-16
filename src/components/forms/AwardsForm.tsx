@@ -3,6 +3,7 @@ import { SmartDateInput } from './SmartDateInput';
 import { useProofreadingStore } from '../../lib/proofreadingStore';
 import { useEffect } from 'react';
 import { Plus } from 'lucide-react';
+import { RichTextEditor } from './RichTextEditor';
 
 export function AwardsForm() {
     const { resumeData, addAward, updateAward, removeAward } = useResumeStore();
@@ -84,12 +85,11 @@ export function AwardsForm() {
 
                         <div className="pt-1">
                             <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">Summary (optional)</label>
-                            <textarea
+                            <RichTextEditor
                                 value={award.summary || ''}
-                                onChange={(e) => updateAward(index, { summary: e.target.value })}
-                                rows={2}
-                                className="w-full px-3 py-1.5 sm:py-2 border-2 border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:border-slate-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-medium transition-all resize-y"
+                                onChange={(html) => updateAward(index, { summary: html })}
                                 placeholder="Recognized for outstanding leadership and mentorship..."
+                                singleLine
                             />
                         </div>
                     </div>

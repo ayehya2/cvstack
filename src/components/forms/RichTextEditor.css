@@ -1,0 +1,190 @@
+/* ── Rich Text Editor Styles ── */
+
+.rte-wrapper {
+    position: relative;
+}
+
+/* Toolbar */
+.rte-toolbar {
+    display: flex;
+    gap: 2px;
+    padding: 4px 6px;
+    border: 2px solid var(--input-border, #cbd5e1);
+    border-bottom: none;
+    background: var(--input-bg, #f8fafc);
+    flex-wrap: wrap;
+}
+
+.rte-toolbar button,
+.rte-bubble-menu button {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--main-text-secondary, #64748b);
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.rte-toolbar button:hover,
+.rte-bubble-menu button:hover {
+    background: var(--accent, #3b82f6);
+    color: #fff;
+    border-color: var(--accent, #3b82f6);
+}
+
+.rte-toolbar button.is-active,
+.rte-bubble-menu button.is-active {
+    background: var(--accent, #3b82f6);
+    color: #fff;
+    border-color: var(--accent, #3b82f6);
+}
+
+.rte-toolbar-divider {
+    width: 1px;
+    background: var(--input-border, #cbd5e1);
+    margin: 2px 4px;
+    align-self: stretch;
+}
+
+/* Bubble Menu — theme-aware floating toolbar */
+.rte-bubble-menu {
+    position: absolute;
+    display: flex;
+    gap: 2px;
+    padding: 4px 6px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    z-index: 9999;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.dark .rte-bubble-menu {
+    background: #1e293b;
+    border-color: #475569;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.rte-bubble-menu button {
+    color: #334155;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    border-radius: 4px;
+}
+
+.dark .rte-bubble-menu button {
+    color: #e2e8f0;
+}
+
+.rte-bubble-menu button:hover {
+    background: #3b82f6;
+    color: #fff;
+}
+
+.rte-bubble-menu button.is-active {
+    background: #3b82f6;
+    color: #fff;
+}
+
+/* Editor Content */
+.rte-content {
+    border: 2px solid var(--input-border, #cbd5e1);
+    background: var(--input-bg, #fff);
+    color: var(--main-text, #0f172a);
+    padding: 8px 12px;
+    min-height: 60px;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.5;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.rte-content:focus-within {
+    border-color: var(--accent, #3b82f6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.rte-content.rte-single-line {
+    min-height: 38px;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+@media (min-width: 640px) {
+    .rte-content.rte-single-line {
+        min-height: 42px;
+    }
+}
+
+/* Placeholder */
+.rte-content p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: var(--main-text-secondary, #94a3b8);
+    pointer-events: none;
+    height: 0;
+    font-style: italic;
+}
+
+/* Inline formatting inside editor */
+.rte-content strong {
+    font-weight: 700;
+}
+.rte-content em {
+    font-style: italic;
+}
+.rte-content u {
+    text-decoration: underline;
+}
+.rte-content s {
+    text-decoration: line-through;
+}
+.rte-content a,
+.rte-link {
+    color: var(--accent, #3b82f6);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Lists inside editor */
+.rte-content ul,
+.rte-content ol {
+    padding-left: 20px;
+    margin: 4px 0;
+}
+.rte-content ul {
+    list-style-type: disc;
+}
+.rte-content ol {
+    list-style-type: decimal;
+}
+.rte-content li {
+    margin-bottom: 2px;
+}
+.rte-content li p {
+    margin: 0;
+}
+
+/* Single-line mode: suppress toolbar gap */
+.rte-single .rte-content {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}

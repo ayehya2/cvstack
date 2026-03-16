@@ -14,12 +14,14 @@ import {
     getPDFBulletGap,
     getPDFSectionHeaderStyle,
     getPDFSkillSeparator,
+    renderSkillItems,
     getPDFDateFormat,
     getPDFDateSeparator,
     getPDFBodyTextWeight,
     getPDFParagraphSpacing
 } from '../lib/pdfFormatting';
 import { parseBoldTextPDF } from '../lib/parseBoldText';
+import { renderEducationSubsections } from '../lib/educationSubsections';
 
 /**
  * Compact PDF Template (#9)
@@ -320,6 +322,7 @@ export function CompactPDFTemplate({ data, documentTitle }: CompactPDFTemplatePr
                                                 <Text style={{ color: '#555555', fontSize: 8 }}>{edu.degree}{edu.field && ` in ${edu.field}`}</Text>
                                                 <Text style={{ color: '#888888', fontSize: 7.5 }}>{getPDFDateFormat(edu.graduationDate, formatting.dateFormat)}</Text>
                                                 {formatting.showGPA && edu.gpa && <Text style={{ fontSize: 7.5, color: '#888888' }}>GPA: {formatting.showGPA && edu.gpa}</Text>}
+                                                {renderEducationSubsections({ thesis: edu.thesis, clubs: edu.clubs, courses: edu.courses, activities: edu.activities, baseFontSize: 8, accentColor, bulletSymbol })}
                                             </View>
                                         ))}
                                     </View>
@@ -333,7 +336,7 @@ export function CompactPDFTemplate({ data, documentTitle }: CompactPDFTemplatePr
                                         {skills.filter(s => s.category?.trim() || s.items.some(i => i.trim())).map((skillGroup, idx) => (
                                             <View key={idx} style={{ marginBottom: 4 }}>
                                                 <Text style={{ fontWeight: 'bold', fontSize: 8, color: '#333333' }}>{skillGroup.category}</Text>
-                                                <Text style={{ fontSize: 7.5, color: '#666666', lineHeight: 1.4 }}>{skillGroup.items.filter(i => i.trim()).join(getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                                <Text style={{ fontSize: 7.5, color: '#666666', lineHeight: 1.4 }}>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
                                             </View>
                                         ))}
                                     </View>

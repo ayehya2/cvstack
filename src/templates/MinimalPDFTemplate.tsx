@@ -14,6 +14,7 @@ import {
     getPDFBulletGap,
     getPDFSectionHeaderStyle,
     getPDFSkillSeparator,
+    renderSkillItems,
     getPDFDateFormat,
     getPDFDateSeparator,
     getPDFBodyTextWeight,
@@ -115,6 +116,38 @@ const createStyles = (formatting: FormattingOptions) => {
         skillItems: {
             color: '#444444',
         },
+        thesisText: {
+            fontSize: baseFontSize - 1,
+            color: '#555555',
+            marginTop: 1,
+            marginBottom: 2,
+            fontStyle: 'italic',
+        },
+        subSectionTitle: {
+            fontSize: 8.5,
+            fontWeight: 'bold',
+            color: accentColor,
+            textTransform: 'uppercase',
+            marginTop: 4,
+            marginBottom: 2,
+        },
+        subSectionEntry: {
+            marginBottom: 2,
+        },
+        subSectionHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+        },
+        subSectionName: {
+            fontSize: baseFontSize - 1,
+            fontWeight: 'bold',
+            color: '#000000',
+        },
+        subSectionSub: {
+            fontSize: 8,
+            fontStyle: 'italic',
+            color: '#666666',
+        },
     });
 };
 
@@ -179,7 +212,59 @@ export function MinimalPDFTemplate({ data, documentTitle }: MinimalPDFTemplatePr
                                         <Text style={styles.entrySubtitle}>
                                             {edu.degree}{edu.field && ` in ${edu.field}`}
                                         </Text>
-                                        {formatting.showGPA && edu.gpa && <Text style={{ fontSize: baseFontSize - 1, color: '#888888' }}>GPA: {formatting.showGPA && edu.gpa}</Text>}
+
+                                        {edu.thesis && (
+                                            <Text style={styles.thesisText}>Thesis: {edu.thesis}</Text>
+                                        )}
+
+                                        {formatting.showGPA && edu.gpa && (
+                                            <Text style={{ fontSize: baseFontSize - 1, color: '#888888', marginBottom: 2 }}>GPA: {edu.gpa}</Text>
+                                        )}
+
+                                        {/* Clubs */}
+                                        {edu.clubs && edu.clubs.length > 0 && (
+                                            <View>
+                                                <Text style={styles.subSectionTitle}>Clubs & Organizations</Text>
+                                                {edu.clubs.map((club, cIdx) => (
+                                                    <View key={cIdx} style={styles.subSectionEntry}>
+                                                        <View style={styles.subSectionHeader}>
+                                                            <Text style={styles.subSectionName}>{club.name}</Text>
+                                                            <Text style={styles.dateRange}>{club.startDate} {club.startDate && club.endDate ? '–' : ''} {club.endDate}</Text>
+                                                        </View>
+                                                        <Text style={styles.subSectionSub}>{club.role}</Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        )}
+
+                                        {/* Courses */}
+                                        {edu.courses && edu.courses.length > 0 && (
+                                            <View>
+                                                <Text style={styles.subSectionTitle}>Relevant Coursework</Text>
+                                                <Text style={{ fontSize: baseFontSize - 2, color: '#444444', lineHeight: 1.3 }}>
+                                                    {edu.courses.join(', ')}
+                                                </Text>
+                                            </View>
+                                        )}
+
+                                        {/* Activities */}
+                                        {edu.activities && edu.activities.length > 0 && (
+                                            <View>
+                                                {edu.activities.map((section, sIdx) => (
+                                                    <View key={sIdx}>
+                                                        <Text style={styles.subSectionTitle}>{section.title}</Text>
+                                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                                                            {section.items.filter(it => it.trim()).map((item, iIdx) => (
+                                                                <View key={iIdx} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                    <Text style={{ ...styles.bulletSymbol, fontSize: 8 }}>{bulletSymbol}</Text>
+                                                                    <Text style={{ fontSize: baseFontSize - 2 }}>{item}</Text>
+                                                                </View>
+                                                            ))}
+                                                        </View>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        )}
                                     </View>
                                 ))}
                             </View>
@@ -222,7 +307,7 @@ export function MinimalPDFTemplate({ data, documentTitle }: MinimalPDFTemplatePr
                                 {skills.filter(s => s.category?.trim() || s.items.some(i => i.trim())).map((skillGroup, idx) => (
                                     <View key={idx} style={styles.skillRow}>
                                         <Text style={styles.skillCategory}>{skillGroup.category}: </Text>
-                                        <Text style={styles.skillItems}>{skillGroup.items.filter(i => i.trim()).join(getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                        <Text style={styles.skillItems}>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
                                     </View>
                                 ))}
                             </View>

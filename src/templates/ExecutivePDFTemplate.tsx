@@ -13,6 +13,7 @@ import {
     getPDFBulletGap,
     getPDFSectionHeaderStyle,
     getPDFSkillSeparator,
+    renderSkillItems,
     getPDFDateFormat,
     getPDFDateSeparator,
     getPDFBodyTextWeight,
@@ -120,6 +121,41 @@ const createStyles = (formatting: FormattingOptions) => {
             fontSize: baseFontSize - 1,
             marginBottom: 3,
         },
+        thesisText: {
+            fontSize: baseFontSize - 1,
+            color: '#333333',
+            marginTop: 2,
+            marginBottom: 4,
+            fontStyle: 'italic',
+        },
+        subSectionTitle: {
+            fontSize: 9,
+            fontWeight: 'bold',
+            color: accentColor,
+            textTransform: 'uppercase',
+            marginTop: 6,
+            marginBottom: 3,
+            borderBottom: `0.5pt solid ${accentColor}44`,
+            paddingBottom: 1,
+        },
+        subSectionEntry: {
+            marginBottom: 4,
+        },
+        subSectionHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 1,
+        },
+        subSectionName: {
+            fontSize: baseFontSize - 1,
+            fontWeight: 'bold',
+            color: '#1a1a1a',
+        },
+        subSectionSub: {
+            fontSize: 8.5,
+            fontStyle: 'italic',
+            color: '#444444',
+        },
     });
 };
 
@@ -184,7 +220,65 @@ export function ExecutivePDFTemplate({ data, documentTitle }: ExecutivePDFTempla
                                             <Text style={styles.entrySubtitle}>
                                                 {edu.degree}{edu.field && ` in ${edu.field}`}
                                             </Text>
-                                            {formatting.showGPA && edu.gpa && <Text style={{ fontSize: 9, color: '#666666' }}>GPA: {formatting.showGPA && edu.gpa}</Text>}
+
+                                            {edu.thesis && (
+                                                <Text style={styles.thesisText}>Thesis: {edu.thesis}</Text>
+                                            )}
+
+                                            {formatting.showGPA && edu.gpa && (
+                                                <Text style={{ fontSize: 9, color: '#666666', marginBottom: 4 }}>GPA: {edu.gpa}</Text>
+                                            )}
+
+                                            {/* Clubs */}
+                                            {edu.clubs && edu.clubs.length > 0 && (
+                                                <View>
+                                                    <Text style={styles.subSectionTitle}>Clubs & Organizations</Text>
+                                                    {edu.clubs.map((club, cIdx) => (
+                                                        <View key={cIdx} style={styles.subSectionEntry}>
+                                                            <View style={styles.subSectionHeader}>
+                                                                <Text style={styles.subSectionName}>{club.name}</Text>
+                                                                <Text style={styles.dateRange}>{club.startDate} {club.startDate && club.endDate ? '–' : ''} {club.endDate}</Text>
+                                                            </View>
+                                                            <Text style={styles.subSectionSub}>{club.role}</Text>
+                                                            {club.bullets && club.bullets.filter(b => b.trim()).map((bullet, bIdx) => (
+                                                                <View key={bIdx} style={{ ...styles.bulletPoint, marginBottom: 1, marginTop: 1 }}>
+                                                                    <Text style={styles.bulletSymbol}>{bulletSymbol}</Text>
+                                                                    <Text style={{ flex: 1, fontSize: getPDFFontSize(formatting.baseFontSize) - 2 }}>{bullet}</Text>
+                                                                </View>
+                                                            ))}
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            )}
+
+                                            {/* Courses */}
+                                            {edu.courses && edu.courses.length > 0 && (
+                                                <View>
+                                                    <Text style={styles.subSectionTitle}>Relevant Coursework</Text>
+                                                    <Text style={{ fontSize: getPDFFontSize(formatting.baseFontSize) - 2, color: '#333333', lineHeight: 1.4 }}>
+                                                        {edu.courses.join(', ')}
+                                                    </Text>
+                                                </View>
+                                            )}
+
+                                            {/* Activities */}
+                                            {edu.activities && edu.activities.length > 0 && (
+                                                <View>
+                                                    {edu.activities.map((section, sIdx) => (
+                                                        <View key={sIdx}>
+                                                            <Text style={styles.subSectionTitle}>{section.title}</Text>
+                                                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                                                                {section.items.filter(it => it.trim()).map((item, iIdx) => (
+                                                                    <View key={iIdx} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                                        <Text style={{ ...styles.bulletSymbol, fontSize: 8 }}>{bulletSymbol}</Text>
+                                                                        <Text style={{ fontSize: getPDFFontSize(formatting.baseFontSize) - 2 }}>{item}</Text>
+                                                                    </View>
+                                                                ))}
+                                                            </View>
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            )}
                                         </View>
                                     ))}
                                 </View>
@@ -228,7 +322,7 @@ export function ExecutivePDFTemplate({ data, documentTitle }: ExecutivePDFTempla
                                         <View key={idx} style={styles.skillCategory}>
                                             <Text>
                                                 <Text style={{ fontWeight: 'bold' }}>{skillGroup.category}: </Text>
-                                                <Text style={{ color: '#444444' }}>{skillGroup.items.filter(i => i.trim()).join(getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                                <Text style={{ color: '#444444' }}>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
                                             </Text>
                                         </View>
                                     ))}

@@ -1,11 +1,24 @@
 import { createElement, type ReactNode } from 'react';
+import { htmlToPdfElements, containsHtml } from './htmlToPdfElements';
 
 /**
  * Parse **bold** and *italic* markdown syntax in text and return React elements.
+ * Also supports HTML input from the rich text editor.
  */
 export function parseBoldText(text: string): ReactNode[] {
+    if (!text) return [text];
+
+    // If the input contains HTML, render it directly
+    if (containsHtml(text)) {
+        // Strip wrapping <p> and render HTML as raw
+        const cleaned = text
+            .replace(/^<p>/, '').replace(/<\/p>$/, '')
+            .replace(/<p>/g, '<br>').replace(/<\/p>/g, '');
+        return [<span key="html" dangerouslySetInnerHTML={{ __html: cleaned }} />];
+    }
+
+    // Legacy markdown parsing
     const parts: ReactNode[] = [];
-    // Matches **bold**, __bold__, *italic*, or _italic_
     const regex = /(\*\*|__)(.+?)\1|(\*|_)(.+?)\3/g;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
@@ -33,14 +46,22 @@ export function parseBoldText(text: string): ReactNode[] {
 
 /**
  * Parse **bold** and *italic* markdown syntax for @react-pdf/renderer.
+ * Also supports HTML input from the rich text editor.
  */
 export function parseBoldTextPDF(
     text: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     TextComponent: any
 ): ReactNode[] {
+    if (!text) return [text];
+
+    // If the input contains HTML, use the HTML-to-PDF converter
+    if (containsHtml(text)) {
+        return htmlToPdfElements(text, TextComponent);
+    }
+
+    // Legacy markdown parsing
     const parts: ReactNode[] = [];
-    // Matches **bold**, __bold__, *italic*, or _italic_
     const regex = /(\*\*|__)(.+?)\1|(\*|_)(.+?)\3/g;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
@@ -77,7 +98,11 @@ export function parseBoldTextPDF(
 
 /**
  * Strip **bold** and *italic* markers from text (for plain text contexts).
+ * Also strips HTML tags if present.
  */
 export function stripBoldMarkers(text: string): string {
+    if (containsHtml(text)) {
+        return text.replace(/<[^>]+>/g, '');
+    }
     return text.replace(/(\*\*|\*)(.+?)\1/g, '$2');
 }

@@ -14,6 +14,7 @@ import {
     getPDFBulletGap,
     getPDFSectionHeaderStyle,
     getPDFSkillSeparator,
+    renderSkillItems,
     getPDFDateFormat,
     getPDFDateSeparator,
     getPDFBodyTextWeight,
@@ -21,6 +22,7 @@ import {
     getPDFSectionTitleSpacing
 } from '../lib/pdfFormatting';
 import { parseBoldTextPDF } from '../lib/parseBoldText';
+import { renderEducationSubsections } from '../lib/educationSubsections';
 
 const createStyles = (formatting: FormattingOptions) => {
     const accentColor = getPDFColorValue(formatting.colorTheme, formatting.customColor);
@@ -183,7 +185,7 @@ export function TechnicalPDFTemplate({ data, documentTitle }: TechnicalPDFTempla
                             <View key={idx} style={styles.skillRow}>
                                 <Text>
                                     <Text style={styles.skillCategory}>{skillGroup.category}: </Text>
-                                    <Text style={styles.skillItems}>{skillGroup.items.filter(i => i.trim()).join(getPDFSkillSeparator(formatting.skillLayout))}</Text>
+                                    <Text style={styles.skillItems}>{renderSkillItems(skillGroup.items, getPDFSkillSeparator(formatting.skillLayout))}</Text>
                                 </Text>
                             </View>
                         ))}
@@ -224,6 +226,7 @@ export function TechnicalPDFTemplate({ data, documentTitle }: TechnicalPDFTempla
                                             {edu.degree}{edu.field && ` in ${edu.field}`}
                                         </Text>
                                         {formatting.showGPA && edu.gpa && <Text style={{ fontSize: 9, color: '#888888' }}>GPA: {formatting.showGPA && edu.gpa}</Text>}
+                                        {renderEducationSubsections({ thesis: edu.thesis, clubs: edu.clubs, courses: edu.courses, activities: edu.activities, baseFontSize: getPDFFontSize(formatting.baseFontSize), accentColor: getPDFColorValue(formatting.colorTheme, formatting.customColor), bulletSymbol: getPDFBulletSymbol(formatting.bulletStyle) })}
                                     </View>
                                 ))}
                             </View>
