@@ -163,6 +163,13 @@ function SidebarItem({ tab, isActive, onClick }: { tab: TabItem; isActive: boole
   );
 }
 
+/* ── Split Pane Constants (module scope for stable refs) ── */
+const DEFAULT_SPLIT = 50;
+const MIN_SPLIT = 25;
+const MAX_SPLIT = 75;
+const SNAP_POINTS = [30, 50, 70];
+const SNAP_THRESHOLD = 3;
+
 interface ParentDocument {
   id: string;
   title?: string;
@@ -214,6 +221,126 @@ function App() { // Stores
   const [docDropdownOpen, setDocDropdownOpen] = useState(false);
   const [jobDropdownOpen, setJobDropdownOpen] = useState(false);
   const [jobSearch, setJobSearch] = useState('');
+
+  // ── Resizable Split Pane ──
+  const SPLIT_KEY = 'cvstack-split-ratio';
+
+  const [splitRatio, setSplitRatio] = useState(() => {
+    try {
+      const saved = localStorage.getItem(SPLIT_KEY);
+      if (saved) {
+        const val = parseFloat(saved);
+        if (val >= MIN_SPLIT && val <= MAX_SPLIT) return val;
+      }
+    } catch { /* ignore */ }
+    return DEFAULT_SPLIT;
+  });
+  const editorRef = useRef<HTMLElement>(null);
+  const previewRef = useRef<HTMLElement>(null);
+  const dividerLineRef = useRef<HTMLDivElement>(null);
+  const ratioRef = useRef(splitRatio); // live ratio during drag (no re-renders)
+  const rafRef = useRef<number>(0);
+
+  // Keep ratioRef in sync when state changes (e.g. double-click reset)
+  useEffect(() => { ratioRef.current = splitRatio; }, [splitRatio]);
+
+  // Persist split ratio
+  useEffect(() => {
+    try { localStorage.setItem(SPLIT_KEY, String(splitRatio)); } catch { /* */ }
+  }, [splitRatio]);
+
+  // Apply ratio directly to DOM (no React re-render)
+  const applyRatio = useCallback((ratio: number) => {
+    if (editorRef.current) editorRef.current.style.flex = `${ratio} 0 0`;
+    if (previewRef.current) previewRef.current.style.flex = `${100 - ratio} 0 0`;
+  }, []);
+
+  // Drag handlers — direct DOM manipulation, RAF-throttled
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    // Show accent color on divider line immediately
+    if (dividerLineRef.current) {
+      dividerLineRef.current.style.backgroundColor = 'var(--accent)';
+      dividerLineRef.current.style.width = '3px';
+    }
+
+    // Disable pointer events on iframes during drag (prevents swallowing mouse events)
+    const iframes = document.querySelectorAll('iframe');
+    iframes.forEach(f => (f.style.pointerEvents = 'none'));
+
+    const editorEl = editorRef.current;
+    const previewEl = previewRef.current;
+    if (!editorEl || !previewEl) return;
+
+    // Snapshot the content area bounds at drag start
+    const editorRect = editorEl.getBoundingClientRect();
+    const previewRect = previewEl.getBoundingClientRect();
+    const contentLeft = editorRect.left;
+    const contentWidth = previewRect.right - editorRect.left;
+
+    const handleDragMove = (ev: MouseEvent) => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        if (contentWidth <= 0) return;
+        const mouseX = ev.clientX - contentLeft;
+        let ratio = (mouseX / contentWidth) * 100;
+
+        // Snap to snap points
+        for (const snap of SNAP_POINTS) {
+          if (Math.abs(ratio - snap) < SNAP_THRESHOLD) {
+            ratio = snap;
+            break;
+          }
+        }
+
+        ratio = Math.max(MIN_SPLIT, Math.min(MAX_SPLIT, ratio));
+        ratioRef.current = ratio;
+        applyRatio(ratio); // direct DOM update, no React re-render
+      });
+    };
+
+    const handleDragEnd = () => {
+      cancelAnimationFrame(rafRef.current);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+
+      // Restore iframe pointer events
+      iframes.forEach(f => (f.style.pointerEvents = ''));
+
+      // Reset divider line style
+      if (dividerLineRef.current) {
+        dividerLineRef.current.style.backgroundColor = '';
+        dividerLineRef.current.style.width = '';
+      }
+
+      // Commit final ratio to React state (single re-render)
+      setSplitRatio(ratioRef.current);
+
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+    };
+
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
+  }, [applyRatio]);
+
+  const handleDividerDoubleClick = useCallback(() => {
+    setSplitRatio(DEFAULT_SPLIT);
+    applyRatio(DEFAULT_SPLIT);
+    ratioRef.current = DEFAULT_SPLIT;
+  }, [applyRatio]);
+
+  const handleToggleFocus = useCallback(() => {
+    // If we're not at 60, go to 60 (focused editor, 40% preview). If we are, go to 50.
+    const target = Math.abs(splitRatio - 60) > 5 ? 60 : 50;
+    setSplitRatio(target);
+    localStorage.setItem('cvstack-split-ratio', target.toString());
+    applyRatio(target);
+    ratioRef.current = target;
+  }, [splitRatio, applyRatio]);
 
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
   const [resumeTemplateFilter, setResumeTemplateFilter] = useState<'all' | 'standard' | 'latex'>('all');
@@ -392,12 +519,22 @@ function App() { // Stores
             useResumeStore.setState({ resumeData: { ...useResumeStore.getState().resumeData, ...data } });
           }
         }
+        
+        // Preserve current cover letter data if not provided
         if (event.data.coverLetterData) {
           useCoverLetterStore.setState({ coverLetterData: event.data.coverLetterData });
         }
-        if (event.data.showResume !== undefined) setShowResume(event.data.showResume);
-        if (event.data.showCoverLetter !== undefined) setShowCoverLetter(event.data.showCoverLetter);
-        if (event.data.documentType) setDocumentType(event.data.documentType);
+        
+        // IMPORTANT: Only update visibility if explicitly defined in message
+        if (event.data.showResume !== undefined) {
+            setShowResume(event.data.showResume);
+        }
+        if (event.data.showCoverLetter !== undefined) {
+            setShowCoverLetter(event.data.showCoverLetter);
+        }
+        if (event.data.documentType) {
+            setDocumentType(event.data.documentType);
+        }
       }
       if (event.data?.type === 'SET_PARENT_DATA') {
         if (event.data.documents) setParentDocuments(event.data.documents);
@@ -533,6 +670,9 @@ function App() { // Stores
     return () => clearInterval(interval);
   }, [broadcastSave]);
 
+  // Ref: Track previous tab to only sync documentType on category change
+  const previousTabRef = useRef<string>(activeTab);
+
   // Sync documentType with toggles and activeTab
   useEffect(() => {
     const isCVTab = activeTab === 'cover-letter' || activeTab === 'cv-templates' || activeTab === 'cv-formatting';
@@ -543,16 +683,31 @@ function App() { // Stores
       resumeData.sections.includes(activeTab as SectionKey);
     const isProfileTab = activeTab === 'basics';
 
+    const tabChanged = activeTab !== previousTabRef.current;
+    previousTabRef.current = activeTab;
+
+    // Only switch document type if:
+    // 1. The document toggles changed (showResume/showCoverLetter)
+    // 2. The active tab actually changed to a tab of a different category
+    // 3. We are NOT in a neutral tab (basics)
+    
     if (isProfileTab) {
       // Profile is neutral — keep current documentType
-    } else if (showCoverLetter && !showResume) {
-      setDocumentType('coverletter');
-    } else if (showResume && !showCoverLetter) {
-      setDocumentType('resume');
-    } else if (isCVTab) {
-      setDocumentType('coverletter');
-    } else if (isResumeTab) {
-      setDocumentType('resume');
+      return;
+    }
+
+    if (!showResume && showCoverLetter) {
+        setDocumentType('coverletter');
+        return;
+    } 
+    if (showResume && !showCoverLetter) {
+        setDocumentType('resume');
+        return;
+    }
+
+    if (tabChanged) {
+        if (isCVTab) setDocumentType('coverletter');
+        else if (isResumeTab) setDocumentType('resume');
     }
   }, [activeTab, resumeData.sections, showResume, showCoverLetter]);
 
@@ -1490,21 +1645,17 @@ function App() { // Stores
         </button>
       </div>
 
-      {/* ━━ Mobile Sidebar Overlay ━━ */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
       )}
 
       <div className="flex-1 flex w-full h-screen overflow-hidden">
-        {/* ━━ Sidebar ━━
-            Desktop: always visible, w-56
-            Mobile: slide-out drawer (fixed, overlays content) */}
+        {/* ━━ Sidebar ━━ */}
         <aside className={`
-      ${sidebarOpen ? 'w-64' : 'w-0'} flex-shrink-0 border-r-2 z-[80]
-          fixed lg:sticky lg:top-0 left-0 h-full lg:h-screen
-          transform transition-all duration-300 ease-in-out shadow-2xl lg:shadow-none
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 overflow-hidden'}
-      `} style={{ backgroundColor: 'var(--sidebar-bg)', color: 'var(--sidebar-text)', borderColor: 'var(--sidebar-border)' }}>
+          fixed inset-y-0 left-0 z-[80] lg:relative lg:z-0
+          transition-all duration-300 ease-in-out transform flex-shrink-0
+          ${sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 lg:w-0'}
+          `} style={{ backgroundColor: 'var(--sidebar-bg)', borderRight: '2px solid var(--sidebar-border)' }}>
           <div className="h-full flex flex-col overflow-hidden">
             <div className="px-4 pt-4 pb-4 space-y-3">
               {/* Dashboard Link (only if iframed) */}
@@ -1849,28 +2000,38 @@ function App() { // Stores
           </div>
         </aside>
 
-        {/* ━━ Main Content Area ━━ */}
-        <main className={`flex-1 flex flex-col h-full overflow-y-auto ${mobileView !== 'form' ? 'hidden lg:flex' : 'flex'}`}
-          style={{ backgroundColor: 'var(--main-bg)', color: 'var(--main-text)' }}>
-          {/* Desktop Toggles */}
-          <div className="hidden lg:flex items-center justify-between px-6 py-2 sticky top-0 z-50 backdrop-blur-md border-b"
-            style={{ backgroundColor: 'var(--main-bg)', borderColor: 'var(--card-border)' }}>
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-black/5 rounded transition-colors" title="Toggle Sidebar">
-              {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
-            </button>
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Editor Focus</span>
-              <button
-                onClick={() => setMobileView(mobileView === 'preview' ? 'form' : 'preview')}
-                className="p-1.5 hover:bg-black/5 rounded transition-colors"
-                title="Toggle Preview Focus"
-              >
-                {mobileView === 'preview' ? <Maximize2 size={18} /> : <Minimize2 size={18} />}
+        {/* ━━ Main Area (Editor + Preview) ━━ */}
+        <div className="flex-1 flex w-full overflow-hidden relative">
+          
+          {/* ━━ Editor Panel ━━ */}
+          <main ref={editorRef} className={`flex flex-col h-full overflow-y-auto ${mobileView === 'preview' ? 'hidden lg:flex' : 'flex'}`}
+            style={{ 
+              backgroundColor: 'var(--main-bg)', 
+              color: 'var(--main-text)', 
+              flex: mobileView === 'form' ? `${splitRatio} 0 0` : '1 0 0', 
+              minWidth: 0, 
+              overflowX: 'hidden' 
+            }}>
+            
+            {/* Desktop Toggles (Restored to original location) */}
+            <div className="hidden lg:flex items-center justify-between px-6 py-2 sticky top-0 z-50 backdrop-blur-md border-b"
+              style={{ backgroundColor: 'var(--main-bg)', borderColor: 'var(--card-border)' }}>
+              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 hover:bg-black/5 rounded transition-colors" title="Toggle Sidebar">
+                {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
               </button>
+              <div className="flex items-center gap-4">
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Editor Focus</span>
+                <button
+                  onClick={handleToggleFocus}
+                  className="p-1.5 hover:bg-black/5 rounded transition-colors"
+                  title={splitRatio > 55 ? "Restore Split (50/50)" : "Focus Editor (60/40)"}
+                >
+                  {splitRatio > 55 ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="w-full max-w-4xl mx-auto px-2 py-3 sm:p-4 lg:p-8">
+            <div className="w-full max-w-4xl mx-auto px-2 py-3 sm:p-4 lg:p-8">
             {continuousMode ? (
               renderContinuousMode()
             ) : (
@@ -2200,22 +2361,52 @@ function App() { // Stores
           </div>
         </main >
 
-        {/* ━━ PDF Preview Panel ━━ */}
-        <aside className={`
-          flex-shrink-0 transition-all duration-300
-          ${mobileView === 'preview' ? 'w-full 2xl:w-[1100px] xl:w-[900px] lg:w-[70%]' : 'w-full 2xl:w-[800px] xl:w-[550px] lg:w-[40%] md:w-[350px]'}
-          ${mobileView !== 'preview' ? 'hidden lg:block md:block' : ''}
-          `} style={{ backgroundColor: 'var(--card-bg)' }}>
-          <div className="sticky top-0 h-screen">
-            <PDFPreview
-              templateId={documentType === 'coverletter' ? coverLetterData.selectedTemplate : resumeData.selectedTemplate}
-              documentType={documentType}
-              showResume={showResume}
-              showCoverLetter={showCoverLetter}
-              onDocumentTypeChange={setDocumentType}
-            />
+            {/* ━━ Resizable Divider (desktop only) ━━ */}
+            {mobileView === 'form' && (
+              <div
+                className="hidden lg:flex flex-col items-center justify-center flex-shrink-0 cursor-col-resize group z-10 relative select-none"
+                style={{ width: '12px' }}
+                onMouseDown={handleDragStart}
+                onDoubleClick={handleDividerDoubleClick}
+                title="Drag to resize • Double-click to reset"
+              >
+                {/* Visual line */}
+                <div
+                  ref={dividerLineRef}
+                  className="w-[2px] h-full transition-all duration-150 group-hover:w-[3px]"
+                  style={{
+                    backgroundColor: 'var(--card-border)',
+                  }}
+                />
+                {/* Grip dots */}
+                <div className="absolute top-1/2 -translate-y-1/2 flex flex-col gap-[3px] opacity-0 group-hover:opacity-60 transition-opacity">
+                  <div className="w-[4px] h-[4px] rounded-full" style={{ backgroundColor: 'var(--main-text)' }} />
+                  <div className="w-[4px] h-[4px] rounded-full" style={{ backgroundColor: 'var(--main-text)' }} />
+                  <div className="w-[4px] h-[4px] rounded-full" style={{ backgroundColor: 'var(--main-text)' }} />
+                </div>
+              </div>
+            )}
+
+            {/* ━━ PDF Preview Panel ━━ */}
+            <aside ref={previewRef} className={`
+              ${mobileView === 'form' ? 'hidden lg:block md:block' : 'flex w-full'}
+              `} style={{
+                backgroundColor: 'var(--card-bg)',
+                flex: mobileView === 'preview' ? '1 0 0' : `${100 - splitRatio} 0 0`,
+                minWidth: 0,
+                overflow: 'hidden',
+              }}>
+              <div className="sticky top-0 h-screen">
+                <PDFPreview
+                  templateId={documentType === 'coverletter' ? coverLetterData.selectedTemplate : resumeData.selectedTemplate}
+                  documentType={documentType}
+                  showResume={showResume}
+                  showCoverLetter={showCoverLetter}
+                  onDocumentTypeChange={setDocumentType}
+                />
+              </div>
+            </aside>
           </div>
-        </aside>
       </div>
     </div>
   );

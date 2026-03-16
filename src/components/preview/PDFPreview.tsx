@@ -111,31 +111,32 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
 
     /* ── Generate PDF blob ── */
     useEffect(() => {
-        // Optimization: Only track data relevant to the current document type to prevent unnecessary rerenders
-        // e.g. Changing cover letter info shouldn't rerender the resume PDF.
-        const currentState = {
-            templateId,
-            documentType,
-            customLatexSource,
-            latexFormatting,
-            // Only include the data that actually affects the current document
-            resumeData: documentType === 'resume' ? resumeData : null,
-            coverLetterData: documentType === 'coverletter' ? coverLetterData : null,
-            // Header/Signature in cover letter often depends on resume basics
-            basics: documentType === 'coverletter' ? resumeData.basics : null,
-        };
-
         const isManualRefresh = manualRefreshTrigger > previousManualRefreshRef.current;
         if (isManualRefresh) {
             previousManualRefreshRef.current = manualRefreshTrigger;
         }
 
-        if (!isManualRefresh && previousDataRef.current && equal(currentState, previousDataRef.current) && pdfBlob) return;
+        // Optimization: Create a clean snapshot of content-affecting state for dirty checking
+        const currentState = {
+            templateId,
+            documentType,
+            customLatexSource,
+            latexFormatting,
+            resumeData: documentType === 'resume' ? resumeData : null,
+            coverLetterData: documentType === 'coverletter' ? coverLetterData : null,
+            basics: documentType === 'coverletter' ? resumeData.basics : null,
+        };
         
         let timeoutId: ReturnType<typeof setTimeout>;
 
         const generatePDF = async () => {
             const gen = ++generationRef.current;
+            
+            // Deep equality check BEFORE showing the "Generating..." spinner
+            if (!isManualRefresh && previousDataRef.current && equal(currentState, previousDataRef.current) && pdfBlob) {
+                return;
+            }
+
             setIsGenerating(true);
             setError(null);
             try {
@@ -156,7 +157,10 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     blob = await pdf(comp as any).toBlob();
                 }
+
+                // Race condition check: only update if this is still the most recent request
                 if (gen !== generationRef.current) return;
+                
                 setPdfBlob(blob);
                 previousDataRef.current = currentState;
             } catch (err) {
@@ -178,6 +182,7 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
         return () => {
             if (timeoutId) clearTimeout(timeoutId);
         };
+        // NOTE: Theme (themeId) is intentionally omitted to avoid resets when toggling Dark/Light mode
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resumeData, templateId, documentType, coverLetterData, customLatexSource, customTemplates, latexFormatting, isLiveMode, manualRefreshTrigger]);
 
@@ -582,8 +587,8 @@ export const PDFPreview = memo(function PDFPreview({ templateId, documentType, s
                 </div>
             )}
 
-            {/* ━━ Body: thumbnails + PDF ━━ */}
-            <div className="flex-1 flex overflow-hidden">
+            {/* ── Main Preview Area (Thumbnails + PDF) ── */}
+            <div className="flex-1 flex flex-row relative min-h-0 overflow-hidden">
                 {/* Thumbnail sidebar */}
                 {showThumbnails && (
                     <div className="w-36 flex-shrink-0 border-r overflow-y-auto p-2 space-y-2"
