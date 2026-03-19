@@ -6,6 +6,16 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23eab308' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CVStack</title>
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var theme = params.get('theme');
+      if (!theme) try { theme = localStorage.getItem('cf-theme') || JSON.parse(localStorage.getItem('resume-builder-data'))?.state?.theme; } catch(e) {}
+      if (theme && (theme.includes('dark') || ['midnight', 'zinc-dark', 'slate', 'indigo'].includes(theme))) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
 </head>
 
 <body>
