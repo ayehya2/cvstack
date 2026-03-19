@@ -263,7 +263,7 @@ export function LaTeXEditor() {
                     <div className="px-4 py-3 border-2 border-b-0"
                         style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 10%, var(--card-bg))', borderColor: 'color-mix(in srgb, var(--accent) 40%, var(--card-border))' }}>
                         <p className="text-xs" style={{ color: 'var(--main-text)' }}>
-                            <strong>Advanced Mode:</strong> Editing raw LaTeX source. Changes here won't sync back to form fields.
+                            <strong>Advanced Mode:</strong> Editing raw LaTeX source. Changes here won&apos;t sync back to form fields.
                             Download the <code className="px-1" style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 15%, var(--card-bg))' }}>.tex</code> to compile locally.
                         </p>
                     </div>

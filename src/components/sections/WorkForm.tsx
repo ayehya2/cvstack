@@ -35,7 +35,7 @@ export function WorkForm() {
 
             {work.length === 0 && (
                 <p className="text-slate-500 dark:text-slate-400 font-medium text-center py-4 bg-slate-50 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-700">
-                    No work experience added yet. Click "Add Job" to get started.
+                    No work experience added yet. Click &quot;Add Job&quot; to get started.
                 </p>
             )}
 

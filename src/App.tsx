@@ -500,7 +500,7 @@ function App() { // Stores
 
     // Listen for messages from parent window (theme, load document, link job)
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'SET_THEME' && event.data.themeId) {
+      if ((event.data?.type === 'SET_THEME' || event.data?.type === 'SET_THEME_FULL') && event.data.themeId) {
         setTheme(event.data.themeId);
       }
       if (event.data?.type === 'REQUEST_SAVE') {
@@ -574,6 +574,11 @@ function App() { // Stores
       }
     };
     window.addEventListener('message', handleMessage);
+    
+    // Initial theme request if iframed
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'REQUEST_THEME' }, '*');
+    }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);

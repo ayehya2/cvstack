@@ -34,7 +34,7 @@ export function EducationForm() {
 
             {education.length === 0 && (
                 <p className="text-slate-500 dark:text-slate-400 font-medium text-center py-4 bg-slate-50 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-700">
-                    No education added yet. Click "Add Education" to get started.
+                    No education added yet. Click &quot;Add Education&quot; to get started.
                 </p>
             )}
 

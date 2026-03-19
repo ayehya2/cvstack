@@ -170,8 +170,8 @@ export const ImportTab: React.FC<ImportTabProps> = ({
                     <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-200">
                         Paste LinkedIn
                     </h3>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-1">
-                        Import from raw profile text
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                        Don&apos;t have a file? Paste your text in the AI Tab for better parsing.
                     </p>
                 </div>
             </div>

@@ -59,7 +59,7 @@ export function SkillsForm() {
 
             {skills.length === 0 && (
                 <p className="text-slate-500 dark:text-slate-400 font-medium text-center py-4 bg-slate-50 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-700">
-                    No skills added yet. Click "Add Skill Category" to get started.
+                    No skills added yet. Click &quot;Add Skill Category&quot; to get started.
                 </p>
             )}
 

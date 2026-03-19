@@ -1,8 +1,15 @@
-# ⚡ CVStack
+# 🚀 CVStack
+> Professional-grade resume & cover letter builder.
+
+**Live Demo**: [cvstack.vercel.app](https://cvstack.vercel.app/)
+
+## 🌐 Network & Integration
+CVStack is a core module of the [JobMint](https://jobmint.vercel.app/) ecosystem. It can be used standalone or integrated into the JobMint dashboard.
+
+- **Standalone**: Full feature access at cvstack.vercel.app.
+- **Integrated**: Seamlessly embedded in JobMint with real-time theme synchronization and data sharing.
 
 A professional-grade **resume & cover letter builder** with pixel-perfect PDF output, 13+ templates, and real-time WYSIWYG preview. Built with **React**, **TypeScript**, and powered by both **@react-pdf/renderer** and **pdfLaTeX**.
-
-> **Live at** [cvstack.vercel.app](https://cvstack.vercel.app)
 
 ## ✨ Features
 

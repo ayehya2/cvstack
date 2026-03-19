@@ -69,6 +69,11 @@ export function ShareAnalyticsView() {
                         <>
                             <RefreshCw size={16} className="animate-spin" />
                             <span className="text-[11px] font-black uppercase tracking-widest">Generating…</span>
+                            <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none select-none overflow-hidden">
+                                <div className="text-[140px] font-black uppercase tracking-tighter -rotate-12 whitespace-nowrap">
+                                    &quot;Public&quot; &quot;Public&quot; &quot;Public&quot;
+                                </div>
+                            </div>
                         </>
                     ) : shareUrl ? (
                         <>

@@ -271,6 +271,11 @@ export function ResumeIntelligenceTab() {
                   <span className="text-[9px] font-bold opacity-20 text-center">No JD</span>
                 </div>
                 <span className="text-[8px] font-black uppercase tracking-[0.15em] opacity-30 mt-1">ATS Match</span>
+                <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none overflow-hidden">
+                    <div className="text-[120px] font-black uppercase tracking-tighter rotate-12 whitespace-nowrap">
+                        &quot;Professional&quot; &quot;Action-Oriented&quot;
+                    </div>
+                </div>
                 <p className="text-[7px] opacity-20 mt-1 text-center max-w-[120px] leading-relaxed">
                   Paste a job description in the "Job Link" tab to get this score
                 </p>
