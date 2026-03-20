@@ -1,10 +1,5 @@
 name: Notify Jobmint
 
-# Fires whenever cvstack pushes to main.
-# Sends a repository_dispatch event to jobmint which triggers
-# its sync-subrepo.yml workflow to pull the latest submodule,
-# build, and auto-commit the updated pointer.
-
 on:
   push:
     branches: [main]
@@ -16,6 +11,6 @@ jobs:
       - name: Dispatch to jobmint
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: ${{ secrets.PARENT_REPO_TOKEN }}
+          token: ${{ secrets.SUB_TOKEN }}
           repository: ayehya2/jobmint
           event-type: cvstack-updated
