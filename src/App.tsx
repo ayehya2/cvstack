@@ -44,7 +44,7 @@ import { useCoverLetterStore } from './lib/stores/coverLetterStore'
 import { useThemeStore, applyTheme, THEMES, THEME_MAP } from './lib/stores/themeStore'
 import { useCustomTemplateStore } from './lib/stores/customTemplateStore'
 import { generateDocumentTitle } from './lib/utils/documentNaming'
-import { SAMPLE_RESUME_DATA, SAMPLE_COVER_LETTER_DATA } from './lib/data/sampleData';
+import { SAMPLE_RESUME_THUMBNAIL_DATA, SAMPLE_COVER_LETTER_DATA } from './lib/data/sampleData';
 import {
   Plus,
   LayoutTemplate,
@@ -1137,7 +1137,7 @@ function App() { // Stores
                   <div className="overflow-hidden bg-white pdf-paper relative" style={{ borderBottom: '2px solid var(--card-border)' }}>
                     <TemplateThumbnail
                       templateId={template.id}
-                      previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_DATA : undefined}
+                      previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_THUMBNAIL_DATA : undefined}
                     />
                     {template.isLatex && (
                       <div className="absolute top-2 right-2 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 shadow-lg z-10" style={{ backgroundColor: '#1e293b' }}>
@@ -1277,7 +1277,7 @@ function App() { // Stores
                         >
                           <TemplateThumbnail
                             templateId={ct.baseTemplateId}
-                            previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_DATA : undefined}
+                            previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_THUMBNAIL_DATA : undefined}
                           />
                           {isActive && (
                             <div className="absolute inset-0 pointer-events-none" style={{ border: '4px solid var(--accent)', opacity: 0.3 }}></div>
@@ -2110,7 +2110,7 @@ function App() { // Stores
                               <div className="overflow-hidden bg-white pdf-paper relative" style={{ borderBottom: '2px solid var(--card-border)' }}>
                                 <TemplateThumbnail
                                   templateId={template.id}
-                                  previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_DATA : undefined}
+                                  previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_THUMBNAIL_DATA : undefined}
                                   isCoverLetter={isCV}
                                 />
                                 {isSelected && (
@@ -2262,7 +2262,7 @@ function App() { // Stores
                                   >
                                     <TemplateThumbnail
                                       templateId={ct.baseTemplateId}
-                                      previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_DATA : undefined}
+                                      previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_THUMBNAIL_DATA : undefined}
                                     />
                                     {isActive && (
                                       <div className="absolute inset-0 pointer-events-none" style={{ border: '4px solid var(--accent)', opacity: 0.3 }}></div>

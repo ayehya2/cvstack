@@ -109,7 +109,7 @@ export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData
 
     if (isLoading && !imageUrl) {
         return (
-            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: 'white' }}>
+            <div className="w-full aspect-[3/4] max-h-[280px] min-h-[140px] flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'white' }}>
                 <div className="flex flex-col items-center gap-2">
                     <div className="w-6 h-6 border-2 rounded-full animate-spin" style={{ borderColor: '#e5e7eb', borderTopColor: 'var(--accent, #3b82f6)' }} />
                     <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#9ca3af' }}>
@@ -122,7 +122,7 @@ export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData
 
     if (hasError && !imageUrl) {
         return (
-            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: 'white' }}>
+            <div className="w-full aspect-[3/4] max-h-[280px] min-h-[140px] flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'white' }}>
                 <div className="flex flex-col items-center gap-2 px-4 text-center">
                     <span className="text-[10px] text-red-500 font-semibold uppercase tracking-wider">
                         {isLatexTemplate(templateId) ? 'LaTeX compilation failed' : 'Preview unavailable'}
@@ -133,17 +133,17 @@ export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData
     }
 
     return (
-        <div className="w-full h-full relative bg-white">
+        <div className="w-full aspect-[3/4] max-h-[280px] min-h-[140px] relative bg-white overflow-hidden">
             {imageUrl && (
                 <img
                     src={imageUrl}
                     alt={`Template ${templateId} preview`}
-                    className="w-full h-full object-contain object-top block"
+                    className="absolute inset-0 w-full h-full object-cover object-top block"
                     draggable={false}
                 />
             )}
             {isLoading && (
-                <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-[1]">
                     <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: '#e5e7eb', borderTopColor: 'var(--accent, #3b82f6)' }} />
                 </div>
             )}

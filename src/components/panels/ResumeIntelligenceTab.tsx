@@ -220,7 +220,7 @@ export function ResumeIntelligenceTab() {
       </div>
 
       {/* ━━ DUAL SCORE HEADER — Always visible ━━ */}
-      <div className="border-2 overflow-hidden shadow-sm relative" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
+      <div className="border-2 overflow-hidden shadow-sm relative isolate" style={{ borderColor: 'var(--card-border)', backgroundColor: 'var(--card-bg)' }}>
         {/* Stale/Manual Refresh Overlay */}
         {isStale && (
           <div className="absolute top-2 right-2 z-10 flex items-center gap-2 animate-in fade-in duration-300">
@@ -237,7 +237,7 @@ export function ResumeIntelligenceTab() {
           </div>
         )}
 
-        <div className={`flex items-stretch border-slate-100 dark:border-slate-800 transition-opacity duration-300 ${isStale ? 'opacity-60' : 'opacity-100'}`}>
+        <div className={`relative z-10 flex items-stretch border-slate-100 dark:border-slate-800 transition-opacity duration-300 ${isStale ? 'opacity-60' : 'opacity-100'}`} style={{ backgroundColor: 'var(--card-bg)' }}>
           {/* Resume Quality Score */}
           <div className="flex-1 p-5 flex flex-col items-center border-r-2 border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10">
             <ScoreRing score={qualityScore || 0} />
@@ -271,11 +271,6 @@ export function ResumeIntelligenceTab() {
                   <span className="text-[9px] font-bold opacity-20 text-center">No JD</span>
                 </div>
                 <span className="text-[8px] font-black uppercase tracking-[0.15em] opacity-30 mt-1">ATS Match</span>
-                <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none overflow-hidden">
-                    <div className="text-[120px] font-black uppercase tracking-tighter rotate-12 whitespace-nowrap">
-                        &quot;Professional&quot; &quot;Action-Oriented&quot;
-                    </div>
-                </div>
                 <p className="text-[7px] opacity-20 mt-1 text-center max-w-[120px] leading-relaxed">
                   Paste a job description in the "Job Link" tab to get this score
                 </p>
@@ -383,7 +378,7 @@ export function ResumeIntelligenceTab() {
       )}
 
       {/* ━━ SECTION BREAKDOWN ━━ */}
-      <div className="border-2 overflow-hidden" style={{ borderColor: 'var(--card-border)' }}>
+      <div className="border-2 overflow-hidden isolate relative" style={{ borderColor: 'var(--card-border)' }}>
         <div className="px-3 py-2" style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}>
           <span className="text-[8px] font-black uppercase tracking-[0.15em] opacity-20">Section Breakdown</span>
         </div>

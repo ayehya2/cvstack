@@ -253,6 +253,13 @@ export const SAMPLE_RESUME_DATA: ResumeData = {
     },
 };
 
+/** Template grid previews only — omits Awards so thumbnails emphasize the top of the resume, not a large “AWARDS” section. */
+export const SAMPLE_RESUME_THUMBNAIL_DATA: ResumeData = {
+    ...SAMPLE_RESUME_DATA,
+    awards: [],
+    sections: SAMPLE_RESUME_DATA.sections.filter((s) => s !== 'awards'),
+};
+
 export const SAMPLE_COVER_LETTER_DATA = {
     recipientName: 'Jonathan Reed',
     recipientTitle: 'Director of Engineering',
