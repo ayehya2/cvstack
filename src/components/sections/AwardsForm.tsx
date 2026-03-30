@@ -53,12 +53,6 @@ export function AwardsForm() {
                             </button>
                         </div>
 
-                        <div className="absolute inset-x-0 bottom-0 top-1/2 flex items-center justify-center opacity-5 pointer-events-none select-none overflow-hidden">
-                            <div className="text-[120px] font-black uppercase tracking-tighter rotate-6 whitespace-nowrap">
-                                &quot;Awards&quot; &quot;Awards&quot;
-                            </div>
-                        </div>
-
                         <div className="flex gap-3 sm:gap-4">
                             <div className="flex-[2] min-w-0">
                                 <label className="form-label">Award Title</label>
