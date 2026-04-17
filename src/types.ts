@@ -185,8 +185,10 @@ export interface FormattingOptions {
     showAwardsSummaries: boolean;
     dateSeparator: DateSeparator;
     accentColorPosition: AccentColorPosition;
+    density: Density;
 }
 
+export type Density = 'ultra' | 'compact' | 'standard' | 'large';
 export type FontFamily = 'default' | 'times' | 'arial' | 'calibri' | 'georgia' | 'helvetica' | 'palatino' | 'garamond' | 'cambria' | 'bookAntiqua' | 'centurySchoolbook';
 export type NameSize = 'huge' | 'large' | 'large2' | 'normal';
 export type SectionTitleSize = 'large' | 'normal' | 'small';
@@ -218,6 +220,7 @@ export interface LaTeXFormattingOptions {
     bulletItemSep: string;      // between bullet items e.g. '0pt', '-1pt'
     headerSize: 'Huge' | 'LARGE' | 'Large' | 'large';
     sectionTitleSize: 'Large' | 'large' | 'normalsize';
+    latexBulletStyle?: 'bullet' | 'dash' | 'circle' | 'square' | 'filledSquare' | 'star' | 'arrow' | 'asterisk';
 }
 
 // API Types

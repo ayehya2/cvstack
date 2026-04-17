@@ -250,6 +250,7 @@ export const SAMPLE_RESUME_DATA: ResumeData = {
         showAwardsSummaries: true,
         dateSeparator: '—',
         accentColorPosition: 'headers-only',
+        density: 'standard',
     },
 };
 
