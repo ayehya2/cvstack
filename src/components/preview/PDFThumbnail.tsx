@@ -7,26 +7,36 @@ import { getPDFTemplateComponent, isLatexTemplate } from '../../lib/pdf/pdfTempl
 import { pdfToImage, blobToImage } from '../../lib/pdf/pdfToImage';
 import { generateLaTeXFromData, generateLaTeXCoverLetter } from '../../lib/latex/latexGenerator';
 import { compileLatexViaApi } from '../../lib/latex/latexApiCompiler';
+import { getCachedThumbnail, setCachedThumbnail } from '../../lib/utils/thumbnailCache';
 import type { TemplateId, ResumeData, CoverLetterData } from '../../types';
 
 interface PDFThumbnailProps {
     templateId: TemplateId;
     previewData?: ResumeData | CoverLetterData;
     isCoverLetter?: boolean;
+    /**
+     * When set, the rendered image is stored in / loaded from IndexedDB under
+     * this key.  Pass a stable key (e.g. `thumb-v2-{templateId}-{density}`)
+     * for default-template cards so they render once and are cached forever.
+     * Leave undefined for "your data" live previews so they always re-render.
+     */
+    cacheKey?: string;
 }
 
 /**
  * PDFThumbnail generates a high-fidelity thumbnail image from the actual PDF
  * template. For LaTeX templates, it compiles via the real pdfTeX API.
- * Debounces re-renders (~600ms for non-LaTeX, ~1200ms for LaTeX due to API latency).
+ *
+ * When `cacheKey` is provided the rendered PNG is stored in IndexedDB and
+ * served instantly on subsequent visits — no spinner, no re-render.
  */
-export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData, isCoverLetter }: PDFThumbnailProps) {
+export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData, isCoverLetter, cacheKey }: PDFThumbnailProps) {
     const resumeStore = useResumeStore();
     const coverLetterStore = useCoverLetterStore();
 
     const docData = previewData || (isCoverLetter ? coverLetterStore.coverLetterData : resumeStore.resumeData);
     const { customLatexSource, latexFormatting } = isCoverLetter
-        ? { customLatexSource: '', latexFormatting: undefined } // CL doesn't have custom latex yet
+        ? { customLatexSource: '', latexFormatting: undefined }
         : resumeStore;
     const { customTemplates } = useCustomTemplateStore();
     const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -48,31 +58,43 @@ export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData
         const currentId = ++generationId.current;
         const isLatex = isLatexTemplate(templateId);
         const isLatexCoverLetter = isLatex && isCoverLetter;
-
-        // Longer debounce for LaTeX to avoid hammering the API
         const debounceMs = isLatex ? 1200 : 600;
 
-        const timer = setTimeout(async () => {
-            if (currentId !== generationId.current) return;
+        let cancelled = false;
 
+        const run = async () => {
+            // ── Step 1: check IndexedDB cache (no debounce — cache hits are instant) ──
+            if (cacheKey) {
+                const cached = await getCachedThumbnail(cacheKey);
+                if (cancelled || currentId !== generationId.current) return;
+                if (cached) {
+                    setImageUrl(cached);
+                    setIsLoading(false);
+                    setHasError(false);
+                    return;
+                }
+            }
+
+            // ── Step 2: cache miss — debounce then generate ──
             setIsLoading(true);
             setHasError(false);
+
+            await new Promise(resolve => setTimeout(resolve, debounceMs));
+            if (cancelled || currentId !== generationId.current) return;
 
             try {
                 let url: string | null = null;
 
                 if (isLatexCoverLetter) {
-                    // LaTeX cover letter compilation via API
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const texSource = generateLaTeXCoverLetter(docData as any, templateId);
                     const blob = await compileLatexViaApi(texSource);
-                    if (currentId !== generationId.current) return;
+                    if (cancelled || currentId !== generationId.current) return;
                     url = await blobToImage(blob, 1.5);
                 } else if (isLatex) {
-                    // Real LaTeX resume compilation via API
                     const texSource = customLatexSource || generateLaTeXFromData(effectiveData, templateId, latexFormatting);
                     const blob = await compileLatexViaApi(texSource);
-                    if (currentId !== generationId.current) return;
+                    if (cancelled || currentId !== generationId.current) return;
                     url = await blobToImage(blob, 1.5);
                 } else {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,16 +102,18 @@ export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData
                     url = await pdfToImage(component, 1.5);
                 }
 
-                if (currentId !== generationId.current) return;
+                if (cancelled || currentId !== generationId.current) return;
 
                 if (url) {
                     setImageUrl(url);
                     setHasError(false);
+                    // Store in cache for next visit (fire-and-forget)
+                    if (cacheKey) setCachedThumbnail(cacheKey, url);
                 } else {
                     setHasError(true);
                 }
             } catch (err) {
-                if (currentId !== generationId.current) return;
+                if (cancelled || currentId !== generationId.current) return;
                 console.error(`[PDFThumbnail] Generation failed for template ${templateId}:`, err, {
                     isCoverLetter,
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,19 +121,32 @@ export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData
                 });
                 setHasError(true);
             } finally {
-                if (currentId === generationId.current) {
+                if (!cancelled && currentId === generationId.current) {
                     setIsLoading(false);
                 }
             }
-        }, debounceMs);
+        };
 
-        return () => clearTimeout(timer);
+        run();
+
+        return () => {
+            cancelled = true;
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fingerprint]);
+    }, [fingerprint, cacheKey]);
+
+    // ── Shared container: letter-page aspect ratio, full page visible ──
+    const containerStyle: React.CSSProperties = {
+        width: '100%',
+        aspectRatio: '8.5 / 11',
+        position: 'relative',
+        backgroundColor: 'white',
+        overflow: 'hidden',
+    };
 
     if (isLoading && !imageUrl) {
         return (
-            <div className="w-full aspect-[3/4] max-h-[280px] min-h-[140px] flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'white' }}>
+            <div style={containerStyle} className="flex items-center justify-center">
                 <div className="flex flex-col items-center gap-2">
                     <div className="w-6 h-6 border-2 rounded-full animate-spin" style={{ borderColor: '#e5e7eb', borderTopColor: 'var(--accent, #3b82f6)' }} />
                     <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#9ca3af' }}>
@@ -122,7 +159,7 @@ export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData
 
     if (hasError && !imageUrl) {
         return (
-            <div className="w-full aspect-[3/4] max-h-[280px] min-h-[140px] flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'white' }}>
+            <div style={containerStyle} className="flex items-center justify-center">
                 <div className="flex flex-col items-center gap-2 px-4 text-center">
                     <span className="text-[10px] text-red-500 font-semibold uppercase tracking-wider">
                         {isLatexTemplate(templateId) ? 'LaTeX compilation failed' : 'Preview unavailable'}
@@ -133,12 +170,13 @@ export const PDFThumbnail = memo(function PDFThumbnail({ templateId, previewData
     }
 
     return (
-        <div className="w-full aspect-[3/4] max-h-[280px] min-h-[140px] relative bg-white overflow-hidden">
+        <div style={containerStyle}>
             {imageUrl && (
                 <img
                     src={imageUrl}
                     alt={`Template ${templateId} preview`}
-                    className="absolute inset-0 w-full h-full object-cover object-top block"
+                    // object-contain so the full first page is always visible (no cutoff)
+                    className="absolute inset-0 w-full h-full object-contain object-top block"
                     draggable={false}
                 />
             )}

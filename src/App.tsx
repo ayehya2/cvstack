@@ -23,7 +23,7 @@ import { ModalProvider, useModal } from './components/common/ThemedModal'
 import { useJobStore } from './lib/stores/jobStore'
 import { TemplateThumbnail } from './components/preview/TemplateThumbnail'
 import { PDFPreview } from './components/preview/PDFPreview'
-import type { TemplateId, SectionKey, DocumentType, PreloadedTemplateId } from './types'
+import type { TemplateId, SectionKey, DocumentType, PreloadedTemplateId, Density, LaTeXFormattingOptions, FormattingOptions } from './types'
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
@@ -189,6 +189,7 @@ function App() { // Stores
     setTemplate: setResumeTemplate, reset: resetResume, loadSampleData: loadResumeSample,
     setSections, addCustomSection,
     updateFormatting: updateResumeFormatting,
+    updateLatexFormatting,
     activeTab, setActiveTab,
     showResume, setShowResume,
     undo: undoResume, redo: redoResume, past: resumePast, future: resumeFuture
@@ -854,9 +855,51 @@ function App() { // Stores
   // Flat tab list
   const isLatexSelected = isLatexTemplate(resumeData.selectedTemplate);
 
+  // IDs 12 and 13 are density variants of 11 — shown inline in the LaTeX group card, not as separate cards
+  const LATEX_DENSITY_VARIANT_IDS = [12, 13];
+
+  // Shared 4-level density system — applies to ALL template types
+  const DENSITY_OPTIONS: { density: Density; label: string; hint: string }[] = [
+    { density: 'ultra',    label: 'Ultra',    hint: 'Max density'      },
+    { density: 'compact',  label: 'Compact',  hint: 'Fits more'        },
+    { density: 'standard', label: 'Standard', hint: 'Best readability' },
+    { density: 'large',    label: 'Large',    hint: 'Spacious layout'  },
+  ];
+
+  // React PDF density presets — applied to FormattingOptions fields
+  const REACT_DENSITY_PRESETS: Record<Density, Partial<FormattingOptions>> = {
+    ultra:    { density: 'ultra',    baseFontSize: '9pt',  lineSpacing: '1.0', sectionSpacing: 'tight',   entrySpacing: 'tight',   bulletSpacing: 'tight',   marginTop: '0.3',  marginBottom: '0.3',  marginLeft: '0.4',  marginRight: '0.4'  },
+    compact:  { density: 'compact',  baseFontSize: '10pt', lineSpacing: '1.1', sectionSpacing: 'tight',   entrySpacing: 'tight',   bulletSpacing: 'tight',   marginTop: '0.45', marginBottom: '0.45', marginLeft: '0.5',  marginRight: '0.5'  },
+    standard: { density: 'standard', baseFontSize: '11pt', lineSpacing: '1.2', sectionSpacing: 'normal',  entrySpacing: 'normal',  bulletSpacing: 'normal',  marginTop: '0.6',  marginBottom: '0.6',  marginLeft: '0.6',  marginRight: '0.6'  },
+    large:    { density: 'large',    baseFontSize: '12pt', lineSpacing: '1.4', sectionSpacing: 'relaxed', entrySpacing: 'relaxed', bulletSpacing: 'relaxed', marginTop: '0.75', marginBottom: '0.75', marginLeft: '0.75', marginRight: '0.75' },
+  };
+
+  // LaTeX Professional density → template ID (large reuses 11 with latexFormatting overrides)
+  const LATEX_PROFESSIONAL_DENSITY_TO_ID: Record<Density, number> = {
+    ultra: 13, compact: 12, standard: 11, large: 11,
+  };
+
+  // LaTeX large override (used when density='large' on professional or academic LaTeX)
+  const LATEX_LARGE_OVERRIDE: Partial<LaTeXFormattingOptions> = {
+    fontSize: '12pt', margins: '1.0in', lineSpacing: '1.3',
+    sectionSpaceBefore: '16pt', sectionSpaceAfter: '8pt', itemSep: '10pt', bulletItemSep: '2pt',
+    headerSize: 'Huge', sectionTitleSize: 'Large',
+  };
+
+  // Academic LaTeX density presets — applied via updateLatexFormatting
+  const ACADEMIC_LATEX_DENSITY_PRESETS: Record<Density, Partial<LaTeXFormattingOptions>> = {
+    ultra:    { fontSize: '9pt',  margins: '0.35in', lineSpacing: '0.92', sectionSpaceBefore: '4pt',  sectionSpaceAfter: '2pt', itemSep: '2pt',  bulletItemSep: '-1pt', headerSize: 'LARGE', sectionTitleSize: 'normalsize' },
+    compact:  { fontSize: '10pt', margins: '0.5in',  lineSpacing: '1.0',  sectionSpaceBefore: '8pt',  sectionSpaceAfter: '3pt', itemSep: '3pt',  bulletItemSep: '-1pt', headerSize: 'LARGE', sectionTitleSize: 'large'      },
+    standard: { fontSize: '11pt', margins: '0.75in', lineSpacing: '1.15', sectionSpaceBefore: '12pt', sectionSpaceAfter: '6pt', itemSep: '6pt',  bulletItemSep: '0pt',  headerSize: 'Huge',  sectionTitleSize: 'Large'      },
+    large:    { fontSize: '12pt', margins: '1.0in',  lineSpacing: '1.3',  sectionSpaceBefore: '16pt', sectionSpaceAfter: '8pt', itemSep: '10pt', bulletItemSep: '2pt',  headerSize: 'Huge',  sectionTitleSize: 'Large'      },
+  };
+
+  const isLatexGroupSelected = [11, 12, 13].includes(resumeData.selectedTemplate);
+
   // Filtered, searched, sorted templates (RESUME)
   const filteredResumeTemplates = (() => {
-    let result = templates.filter(t => t.type === 'resume');
+    // Exclude density variants — they appear inside the LaTeX group card (template 11)
+    let result = templates.filter(t => t.type === 'resume' && !LATEX_DENSITY_VARIANT_IDS.includes(t.id as number));
     if (resumeTemplateFilter === 'latex') result = result.filter(t => t.isLatex);
     else if (resumeTemplateFilter === 'standard') result = result.filter(t => !t.isLatex);
 
@@ -1123,21 +1166,105 @@ function App() { // Stores
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {paginatedResumeTemplates.map((template) => {
               const isSelected = resumeData.selectedTemplate === template.id;
+
+              // LaTeX group card: template 11 represents all three density variants (11, 12, 13)
+              if (template.id === 11) {
+                return (
+                  <div
+                    key="latex-group"
+                    className="relative flex flex-col overflow-hidden border-2 transition-all rounded-none"
+                    style={{
+                      borderColor: isLatexGroupSelected ? 'var(--accent)' : 'var(--card-border)',
+                      backgroundColor: 'var(--card-bg)',
+                      boxShadow: isLatexGroupSelected ? '0 0 0 3px var(--accent-offset), 0 0 20px rgba(0,0,0,0.3)' : 'none',
+                    }}
+                  >
+                    <div
+                      className="overflow-hidden bg-white pdf-paper relative cursor-pointer"
+                      style={{ borderBottom: '2px solid var(--card-border)' }}
+                      onClick={() => setResumeTemplate(LATEX_PROFESSIONAL_DENSITY_TO_ID[resumeData.formatting.density])}
+                    >
+                      <TemplateThumbnail
+                        templateId={LATEX_PROFESSIONAL_DENSITY_TO_ID[resumeData.formatting.density]}
+                        previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_THUMBNAIL_DATA : undefined}
+                        cacheKey={previewDataSource === 'sample' ? `thumb-v2-${LATEX_PROFESSIONAL_DENSITY_TO_ID[resumeData.formatting.density]}-${resumeData.formatting.density}` : undefined}
+                      />
+                      <div className="absolute top-2 right-2 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 shadow-lg z-10" style={{ backgroundColor: '#1e293b' }}>
+                        pdfTeX
+                      </div>
+                    </div>
+                    <div
+                      className="p-3 text-left"
+                      style={{ backgroundColor: isLatexGroupSelected ? 'var(--main-bg)' : 'var(--card-bg)' }}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <div className="font-bold text-sm leading-tight" style={{ color: isLatexGroupSelected ? 'var(--main-text)' : 'var(--main-text-secondary)' }}>
+                            LaTeX
+                          </div>
+                          <div className="text-[10px] font-semibold mt-0.5 uppercase tracking-wider" style={{ color: isLatexGroupSelected ? 'var(--accent)' : 'var(--main-text-secondary)' }}>
+                            {isLatexGroupSelected ? DENSITY_OPTIONS.find(d => d.density === resumeData.formatting.density)?.hint : 'pdfTeX resume'}
+                          </div>
+                        </div>
+                        {isLatexGroupSelected && (
+                          <div className="w-6 h-6 flex items-center justify-center text-white" style={{ backgroundColor: 'var(--accent)' }}>
+                            <Check size={14} strokeWidth={3} />
+                          </div>
+                        )}
+                      </div>
+                      {/* Density selector */}
+                      <div className="grid grid-cols-4 gap-1">
+                        {DENSITY_OPTIONS.map(({ density, label }) => {
+                          const isDensityActive = isLatexGroupSelected && resumeData.formatting.density === density;
+                          return (
+                            <button
+                              key={density}
+                              onClick={() => {
+                                const tid = LATEX_PROFESSIONAL_DENSITY_TO_ID[density];
+                                setResumeTemplate(tid);
+                                updateResumeFormatting({ density });
+                                if (density === 'large') updateLatexFormatting(LATEX_LARGE_OVERRIDE);
+                              }}
+                              className="py-1 text-[9px] font-bold uppercase tracking-wider border transition-colors rounded-none"
+                              style={{
+                                backgroundColor: isDensityActive ? 'var(--accent)' : 'transparent',
+                                color: isDensityActive ? 'white' : 'var(--main-text-secondary)',
+                                borderColor: isDensityActive ? 'var(--accent)' : 'var(--card-border)',
+                              }}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
               return (
-                <button
+                <div
                   key={template.id}
-                  onClick={() => setResumeTemplate(template.id)}
-                  className="group relative flex flex-col overflow-hidden border-2 transition-all rounded-none"
+                  className="relative flex flex-col overflow-hidden border-2 transition-all rounded-none"
                   style={{
                     borderColor: isSelected ? 'var(--accent)' : 'var(--card-border)',
                     backgroundColor: 'var(--card-bg)',
                     boxShadow: isSelected ? '0 0 0 3px var(--accent-offset), 0 0 20px rgba(0,0,0,0.3)' : 'none'
                   }}
                 >
-                  <div className="overflow-hidden bg-white pdf-paper relative" style={{ borderBottom: '2px solid var(--card-border)' }}>
+                  <div
+                    className="overflow-hidden bg-white pdf-paper relative cursor-pointer"
+                    style={{ borderBottom: '2px solid var(--card-border)' }}
+                    onClick={() => setResumeTemplate(template.id)}
+                  >
                     <TemplateThumbnail
                       templateId={template.id}
-                      previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_THUMBNAIL_DATA : undefined}
+                      previewData={previewDataSource === 'sample'
+                        ? (template.isLatex
+                            ? SAMPLE_RESUME_THUMBNAIL_DATA
+                            : { ...SAMPLE_RESUME_THUMBNAIL_DATA, formatting: { ...SAMPLE_RESUME_THUMBNAIL_DATA.formatting, ...REACT_DENSITY_PRESETS[resumeData.formatting.density] } })
+                        : undefined}
+                      cacheKey={previewDataSource === 'sample' ? `thumb-v2-${template.id}-${resumeData.formatting.density}` : undefined}
                     />
                     {template.isLatex && (
                       <div className="absolute top-2 right-2 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 shadow-lg z-10" style={{ backgroundColor: '#1e293b' }}>
@@ -1152,7 +1279,7 @@ function App() { // Stores
                       borderTop: isSelected ? '1px solid var(--card-border)' : 'none',
                     }}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                       <div>
                         <div className="font-bold text-sm leading-tight" style={{ color: isSelected ? 'var(--main-text)' : 'var(--main-text-secondary)' }}>
                           {template.name}
@@ -1167,8 +1294,36 @@ function App() { // Stores
                         </div>
                       )}
                     </div>
+                    {/* Density selector */}
+                    <div className="grid grid-cols-4 gap-1">
+                      {DENSITY_OPTIONS.map(({ density, label }) => {
+                        const isDensityActive = resumeData.formatting.density === density;
+                        return (
+                          <button
+                            key={density}
+                            onClick={() => {
+                              setResumeTemplate(template.id);
+                              if (template.isLatex) {
+                                updateResumeFormatting({ density });
+                                updateLatexFormatting(ACADEMIC_LATEX_DENSITY_PRESETS[density]);
+                              } else {
+                                updateResumeFormatting(REACT_DENSITY_PRESETS[density]);
+                              }
+                            }}
+                            className="py-1 text-[9px] font-bold uppercase tracking-wider border transition-colors rounded-none"
+                            style={{
+                              backgroundColor: isDensityActive ? 'var(--accent)' : 'transparent',
+                              color: isDensityActive ? 'white' : 'var(--main-text-secondary)',
+                              borderColor: isDensityActive ? 'var(--accent)' : 'var(--card-border)',
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
@@ -1475,6 +1630,7 @@ function App() { // Stores
                       templateId={template.id}
                       isCoverLetter={true}
                       previewData={previewDataSource === 'sample' ? SAMPLE_COVER_LETTER_DATA : undefined}
+                      cacheKey={previewDataSource === 'sample' ? `thumb-v2-${template.id}-cv` : undefined}
                     />
                     {template.isLatex && (
                       <div className="absolute top-2 right-2 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 shadow-lg z-10" style={{ backgroundColor: '#1e293b' }}>
@@ -2096,22 +2252,107 @@ function App() { // Stores
                             ? coverLetterData.selectedTemplate === template.id
                             : resumeData.selectedTemplate === template.id;
 
+                          // LaTeX group card (resume only): template 11 represents density variants 11/12/13
+                          if (!isCV && template.id === 11) {
+                            return (
+                              <div
+                                key="latex-group"
+                                className="relative flex flex-col overflow-hidden border-2 transition-all rounded-none"
+                                style={{
+                                  borderColor: isLatexGroupSelected ? 'var(--accent)' : 'var(--card-border)',
+                                  backgroundColor: 'var(--card-bg)',
+                                  boxShadow: isLatexGroupSelected ? '0 0 0 3px var(--accent-offset), 0 0 20px rgba(0,0,0,0.3)' : 'none',
+                                }}
+                              >
+                                <div
+                                  className="overflow-hidden bg-white pdf-paper relative cursor-pointer"
+                                  style={{ borderBottom: '2px solid var(--card-border)' }}
+                                  onClick={() => setResumeTemplate(LATEX_PROFESSIONAL_DENSITY_TO_ID[resumeData.formatting.density])}
+                                >
+                                  <TemplateThumbnail
+                                    templateId={LATEX_PROFESSIONAL_DENSITY_TO_ID[resumeData.formatting.density]}
+                                    previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_THUMBNAIL_DATA : undefined}
+                                    cacheKey={previewDataSource === 'sample' ? `thumb-v2-${LATEX_PROFESSIONAL_DENSITY_TO_ID[resumeData.formatting.density]}-${resumeData.formatting.density}` : undefined}
+                                  />
+                                  {isLatexGroupSelected && (
+                                    <div className="absolute inset-0 pointer-events-none" style={{ border: '4px solid var(--accent)', opacity: 0.4 }}></div>
+                                  )}
+                                  <div className="absolute top-2 right-2 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 shadow-lg z-10" style={{ backgroundColor: '#1e293b' }}>
+                                    pdfTeX
+                                  </div>
+                                </div>
+                                <div
+                                  className="p-3 text-left"
+                                  style={{ backgroundColor: isLatexGroupSelected ? 'var(--main-bg)' : 'var(--card-bg)' }}
+                                >
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div>
+                                      <div className="font-bold text-sm leading-tight" style={{ color: isLatexGroupSelected ? 'var(--main-text)' : 'var(--main-text-secondary)' }}>
+                                        LaTeX
+                                      </div>
+                                      <div className="text-[10px] font-semibold mt-0.5 uppercase tracking-wider" style={{ color: isLatexGroupSelected ? 'var(--accent)' : 'var(--main-text-secondary)' }}>
+                                        {isLatexGroupSelected ? DENSITY_OPTIONS.find(d => d.density === resumeData.formatting.density)?.hint : 'pdfTeX resume'}
+                                      </div>
+                                    </div>
+                                    {isLatexGroupSelected && (
+                                      <div className="w-6 h-6 flex items-center justify-center text-white" style={{ backgroundColor: 'var(--accent)' }}>
+                                        <Check size={14} strokeWidth={3} />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="grid grid-cols-4 gap-1">
+                                    {DENSITY_OPTIONS.map(({ density, label }) => {
+                                      const isDensityActive = isLatexGroupSelected && resumeData.formatting.density === density;
+                                      return (
+                                        <button
+                                          key={density}
+                                          onClick={() => {
+                                            const tid = LATEX_PROFESSIONAL_DENSITY_TO_ID[density];
+                                            setResumeTemplate(tid);
+                                            updateResumeFormatting({ density });
+                                            if (density === 'large') updateLatexFormatting(LATEX_LARGE_OVERRIDE);
+                                          }}
+                                          className="py-1 text-[9px] font-bold uppercase tracking-wider border transition-colors rounded-none"
+                                          style={{
+                                            backgroundColor: isDensityActive ? 'var(--accent)' : 'transparent',
+                                            color: isDensityActive ? 'white' : 'var(--main-text-secondary)',
+                                            borderColor: isDensityActive ? 'var(--accent)' : 'var(--card-border)',
+                                          }}
+                                        >
+                                          {label}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          }
+
                           return (
-                            <button
+                            <div
                               key={template.id}
-                              onClick={() => isCV ? setCVTemplate(template.id) : setResumeTemplate(template.id)}
-                              className="group relative flex flex-col overflow-hidden border-2 transition-all rounded-none"
+                              className="relative flex flex-col overflow-hidden border-2 transition-all rounded-none"
                               style={{
                                 borderColor: isSelected ? 'var(--accent)' : 'var(--card-border)',
                                 backgroundColor: 'var(--card-bg)',
                                 boxShadow: isSelected ? '0 0 0 3px var(--accent-offset), 0 0 20px rgba(0,0,0,0.3)' : 'none'
                               }}
                             >
-                              <div className="overflow-hidden bg-white pdf-paper relative" style={{ borderBottom: '2px solid var(--card-border)' }}>
+                              <div
+                                className="overflow-hidden bg-white pdf-paper relative cursor-pointer"
+                                style={{ borderBottom: '2px solid var(--card-border)' }}
+                                onClick={() => isCV ? setCVTemplate(template.id) : setResumeTemplate(template.id)}
+                              >
                                 <TemplateThumbnail
                                   templateId={template.id}
-                                  previewData={previewDataSource === 'sample' ? SAMPLE_RESUME_THUMBNAIL_DATA : undefined}
+                                  previewData={previewDataSource === 'sample'
+                                    ? (template.isLatex || isCV
+                                        ? SAMPLE_RESUME_THUMBNAIL_DATA
+                                        : { ...SAMPLE_RESUME_THUMBNAIL_DATA, formatting: { ...SAMPLE_RESUME_THUMBNAIL_DATA.formatting, ...REACT_DENSITY_PRESETS[resumeData.formatting.density] } })
+                                    : undefined}
                                   isCoverLetter={isCV}
+                                  cacheKey={previewDataSource === 'sample' ? `thumb-v2-${template.id}-${isCV ? 'cv' : resumeData.formatting.density}` : undefined}
                                 />
                                 {isSelected && (
                                   <div className="absolute inset-0 pointer-events-none" style={{ border: '4px solid var(--accent)', opacity: 0.4 }}></div>
@@ -2130,7 +2371,7 @@ function App() { // Stores
                                   borderTop: isSelected ? '1px solid var(--card-border)' : 'none',
                                 }}
                               >
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between mb-2">
                                   <div>
                                     <div className="font-bold text-sm leading-tight" style={{ color: isSelected ? 'var(--main-text)' : 'var(--main-text-secondary)' }}>
                                       {template.name}
@@ -2145,8 +2386,38 @@ function App() { // Stores
                                     </div>
                                   )}
                                 </div>
+                                {/* Density selector — resume templates only */}
+                                {!isCV && (
+                                  <div className="grid grid-cols-4 gap-1">
+                                    {DENSITY_OPTIONS.map(({ density, label }) => {
+                                      const isDensityActive = resumeData.formatting.density === density;
+                                      return (
+                                        <button
+                                          key={density}
+                                          onClick={() => {
+                                            setResumeTemplate(template.id);
+                                            if (template.isLatex) {
+                                              updateResumeFormatting({ density });
+                                              updateLatexFormatting(ACADEMIC_LATEX_DENSITY_PRESETS[density]);
+                                            } else {
+                                              updateResumeFormatting(REACT_DENSITY_PRESETS[density]);
+                                            }
+                                          }}
+                                          className="py-1 text-[9px] font-bold uppercase tracking-wider border transition-colors rounded-none"
+                                          style={{
+                                            backgroundColor: isDensityActive ? 'var(--accent)' : 'transparent',
+                                            color: isDensityActive ? 'white' : 'var(--main-text-secondary)',
+                                            borderColor: isDensityActive ? 'var(--accent)' : 'var(--card-border)',
+                                          }}
+                                        >
+                                          {label}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </div>
-                            </button>
+                            </div>
                           );
                         })}
                     </div>
